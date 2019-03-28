@@ -97,24 +97,24 @@ async function logout (args) {
   await getClient(args).logout()
 }
 
-function getServiceLocation() {
+function getServiceLocation () {
   const path = require('path')
   return path.join(__dirname, 'service.js')
 }
 
 async function installService (args) {
-  const service = require ("os-service");
+  const service = require('os-service')
   const programPath = getServiceLocation()
 
-  service.add(SERVICE_NAME, {programPath}, (e) => {
-    if(e) throw e
+  service.add(SERVICE_NAME, { programPath }, (e) => {
+    if (e) throw e
   })
 }
 
 async function uninstallService (args) {
-  const service = require ("os-service");
+  const service = require('os-service')
 
   service.remove(SERVICE_NAME, (e) => {
-    if(e) throw e
+    if (e) throw e
   })
 }

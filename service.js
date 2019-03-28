@@ -2,7 +2,7 @@ const PinServer = require('./server')
 
 // TODO: Parse a config file somewhere
 
-const service = require ("os-service");
+const service = require('os-service')
 
 service.run(() => {
   service.stop()

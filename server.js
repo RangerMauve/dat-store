@@ -2,8 +2,15 @@ const DatLibrarian = require('dat-librarian')
 const createFastify = require('fastify')
 const pda = require('pauls-dat-api')
 const userhome = require('userhome')
+const DSS = require('discovery-swarm-stream/server')
+const DAT_SWARM_DEFAULTS = require('dat-swarm-defaults')
 
-const STORAGE_LOCATION = userhome('.dat', 'pinning-data')
+const SWARM_OPTS = DAT_SWARM_DEFAULTS({
+  hash: false
+})
+const DEFAULT_STORAGE_LOCATION = userhome('.dat', 'pinning-data')
+const DEFAULT_PORT = 3472
+const DEFAULT_HOST = '127.0.0.1'
 
 module.exports =
 
@@ -18,16 +25,25 @@ class PinServer {
 
   async init ({ port, host, storageLocation }) {
     this.librarian = new DatLibrarian({
-      dir: storageLocation || STORAGE_LOCATION
+      dir: storageLocation || DEFAULT_STORAGE_LOCATION
     })
 
     this.fastify = createFastify({ logger: true })
+
+    this.dss = new DSS(SWARM_OPTS)
 
     await this.librarian.load()
 
     this.initRoutes()
 
-    await this.fastify.listen(port, host)
+    const handle = (conn) => this.dss.addClient(conn)
+
+    this.fastify.register(require('fastify-websocket'), { handle })
+
+    await this.fastify.listen(
+      port || DEFAULT_PORT,
+      host || DEFAULT_HOST
+    )
   }
 
   initRoutes () {
