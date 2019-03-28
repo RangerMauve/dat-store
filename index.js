@@ -1,5 +1,7 @@
 const subcommand = require('subcommand')
 
+const SERVICE_NAME = 'dat-pin'
+
 subcommand([{
   name: 'add',
   command: add,
@@ -95,6 +97,24 @@ async function logout (args) {
   await getClient(args).logout()
 }
 
-async function installService (args) { console.log('TODO', args) }
+function getServiceLocation() {
+  const path = require('path')
+  return path.join(__dirname, 'service.js')
+}
 
-async function uninstallService (args) { console.log('TODO', args) }
+async function installService (args) {
+  const service = require ("os-service");
+  const programPath = getServiceLocation()
+
+  service.add(SERVICE_NAME, {programPath}, (e) => {
+    if(e) throw e
+  })
+}
+
+async function uninstallService (args) {
+  const service = require ("os-service");
+
+  service.remove(SERVICE_NAME, (e) => {
+    if(e) throw e
+  })
+}
