@@ -1,8 +1,8 @@
-const subcommand = require('subcommand')
+let yargs = require('yargs')
 
 const SERVICE_NAME = 'dat-pin'
 
-subcommand([{
+const commands = [{
   name: 'add',
   command: add,
   help: 'Pin a `dat://` read key to your pinning service to keep it online'
@@ -49,7 +49,23 @@ subcommand([{
   name: 'uninstall-service',
   command: uninstallService,
   help: 'Uninstalls your local pinning service.'
-}])(process.argv.slice(2))
+}]
+
+for(let {name, command, help, options} of commands) {
+  yargs = yargs.command(name, help, (yargs) => {
+    if(!options) return yargs
+    return options.reduce((yargs, {name, abbr, help}) => {
+      return yargs.option(name, {
+        alias: abbr,
+        describe: help,
+        demandOption: true
+      })
+    }, yargs)
+  }, command)
+}
+
+yargs.scriptName('dat-pin').help().argv
+
 
 function getClient (args) {
   const PeerClient = require('./client')
