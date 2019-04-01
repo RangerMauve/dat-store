@@ -12,6 +12,10 @@ dat-pin add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba30
 
 # Install local pinning service
 dat-pin install-service
+
+# Configure external pinning service
+dat-pin set-service https://hashbase.io/
+dat-pin login -u yourusername -p yourpassword
 ```
 
 ## Commands
