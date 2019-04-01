@@ -1,6 +1,6 @@
 {
   "name": "dat-pin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An extension for the Dat CLI to support Pinning Services",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "bin": "bin.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RangerMauve/dat-pin.git"
+    "url": "git+https://github.com/datproject/dat-pin.git"
   },
   "keywords": [
     "dat",
@@ -22,9 +22,9 @@
   "author": "rangermauve",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RangerMauve/dat-pin/issues"
+    "url": "https://github.com/datproject/dat-pin/issues"
   },
-  "homepage": "https://github.com/RangerMauve/dat-pin#readme",
+  "homepage": "https://github.com/datproject/dat-pin#readme",
   "dependencies": {
     "dat-librarian": "^1.1.4-alpha",
     "dat-pinning-service-client": "^2.0.2",
