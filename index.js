@@ -42,6 +42,10 @@ const commands = [{
   command: logout,
   help: 'Logs you out of the pinning service'
 }, {
+  name: 'run-service',
+  command: runService,
+  help: 'Runs the pinning service without installing it in the background.'
+}, {
   name: 'install-service',
   command: installService,
   help: 'Installs a local pinning service on your computer. This will run in the background while your computer is active.'
@@ -64,8 +68,11 @@ for(let {name, command, help, options} of commands) {
   }, command)
 }
 
-yargs.scriptName('dat-pin').help().argv
+yargs = yargs.scriptName('dat-pin').help()
 
+module.exports = (argv) => {
+  yargs.parse(argv)
+}
 
 function getClient (args) {
   const PeerClient = require('./client')
@@ -76,7 +83,7 @@ function getClient (args) {
 }
 
 async function add (args) {
-  await getClient(args).add(args._[0])
+  await getClient(args).add(args._[1])
 }
 
 async function list (args) {
@@ -88,11 +95,11 @@ async function list (args) {
 }
 
 async function remove (args) {
-  await getClient(args).remove(args._[0])
+  await getClient(args).remove(args._[1])
 }
 
 async function setService (args) {
-  await getClient(args).setService(args._[0])
+  await getClient(args).setService(args._[1])
 }
 
 async function unsetService (args) {
@@ -116,6 +123,10 @@ async function logout (args) {
 function getServiceLocation () {
   const path = require('path')
   return path.join(__dirname, 'service.js')
+}
+
+function runService() {
+  require('./service.js')
 }
 
 async function installService (args) {

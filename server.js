@@ -107,6 +107,9 @@ class PinServer {
     this.fastify.post('/v1/dats/remove', async ({ body }) => {
       const { url } = body
 
+      // Make sure the dat is fully loaded before removing it
+      await this.librarian.get(url)
+
       await this.librarian.remove(url)
 
       return {}
@@ -124,9 +127,16 @@ class PinServer {
   }
 
   async getMetadata (key) {
-    const archive = this.librarian.load(key)
+    const {archive} = await this.librarian.get(key)
 
-    const manifest = await pda.readManifest(archive)
+    let manifest = {
+      name: key
+    }
+    try {
+      manifest = await pda.readManifest(archive)
+    } catch (e) {
+      // It must not have a manifest, that's okay
+    }
 
     return {
       url: `dat://${key.toString('hex')}`,
@@ -138,6 +148,19 @@ class PinServer {
   }
 
   async destroy () {
+    await new Promise((resolve, reject) => {
+      this.fastify.close((err) => {
+        if(err) reject(err)
+        else resolve()
+      })
+    })
+    await new Promise((resolve, reject) => {
+      this.dss.destroy((err) => {
+        if(err) reject(err)
+        else resolve()
+      })
+    })
 
+    await this.librarian.close()
   }
 }

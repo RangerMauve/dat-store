@@ -4,18 +4,19 @@ An extension for the Dat CLI to support Pinning Services
 ```shell
 npm install -g dat-pin
 
-# Install local pinning service
-dat-pin install-service
+# Run a pinning service on http://localhost:3282
+dat-pin run-service
 
 # Add a dat to the pinning service so it's always being shared
 dat-pin add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
+
+# Install local pinning service
+dat-pin install-service
 ```
 
 ## Commands
 
 ```
-dat-pin [command]
-
 Commands:
   dat-pin add                Pin a `dat://` read key to your pinning service to
                              keep it online
@@ -29,6 +30,8 @@ Commands:
   dat-pin login              Logs you into the configured pinning service. Not
                              necessary for local services
   dat-pin logout             Logs you out of the pinning service
+  dat-pin run-service        Runs the pinning service without installing it in
+                             the background.
   dat-pin install-service    Installs a local pinning service on your computer.
                              This will run in the background while your computer
                              is active.

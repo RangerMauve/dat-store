@@ -14,9 +14,5 @@ run().catch((e) => {
 })
 
 async function run () {
-  console.log('Running pinning service')
-
   await PinServer.createServer({})
-
-  console.log('Ready')
 }

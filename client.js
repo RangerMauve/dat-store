@@ -91,14 +91,18 @@ class PinClient {
     await this.updateConfig({
       service
     })
+
+    this.service = service
   }
 
   async unsetService () {
     await this.ensureInit()
 
     await this.updateConfig({
-      service: null
+      service: LOCAL_SERVICE
     })
+
+    this.service = LOCAL_SERVICE
   }
 
   async getService () {
