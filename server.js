@@ -8,15 +8,15 @@ const DAT_SWARM_DEFAULTS = require('dat-swarm-defaults')
 const SWARM_OPTS = DAT_SWARM_DEFAULTS({
   hash: false
 })
-const DEFAULT_STORAGE_LOCATION = userhome('.dat', 'pinning-data')
+const DEFAULT_STORAGE_LOCATION = userhome('.dat', 'store-data')
 const DEFAULT_PORT = 3472
-const DEFAULT_HOST = '127.0.0.1'
+const DEFAULT_HOST = '::'
 
 module.exports =
 
-class PinServer {
+class StoreServer {
   static async createServer (options) {
-    const server = new PinServer()
+    const server = new StoreServer()
 
     await server.init(options)
 
@@ -50,7 +50,7 @@ class PinServer {
     this.fastify.get('/.well-known/psa', async () => {
       return {
         'PSA': 1,
-        'title': 'My Pinning Service',
+        'title': 'My ',
         'description': 'Keep your Dats online!',
         'links': [{
           'rel': 'https://archive.org/services/purl/purl/datprotocol/spec/pinning-service-account-api',
@@ -127,7 +127,7 @@ class PinServer {
   }
 
   async getMetadata (key) {
-    const {archive} = await this.librarian.get(key)
+    const { archive } = await this.librarian.get(key)
 
     let manifest = {
       name: key
@@ -150,13 +150,13 @@ class PinServer {
   async destroy () {
     await new Promise((resolve, reject) => {
       this.fastify.close((err) => {
-        if(err) reject(err)
+        if (err) reject(err)
         else resolve()
       })
     })
     await new Promise((resolve, reject) => {
       this.dss.destroy((err) => {
-        if(err) reject(err)
+        if (err) reject(err)
         else resolve()
       })
     })

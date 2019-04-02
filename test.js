@@ -1,18 +1,16 @@
 const os = require('os')
 const path = require('path')
 const test = require('tape')
-const delay = require('delay')
 
 const PinServer = require('./server')
 const PinClient = require('./client')
 
 const LOCAL_SERVICE = 'http://localhost:3472'
-const TEST_PORT = 3472
 
-test("Talk to server with client", async (t) => {
+test('Talk to server with client', async (t) => {
   try {
-    const configLocation = path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2,16))
-    const storageLocation =path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2,16))
+    const configLocation = path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2, 16))
+    const storageLocation = path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2, 16))
 
     const client = new PinClient({
       configLocation
@@ -55,8 +53,8 @@ test("Talk to server with client", async (t) => {
 
     t.pass('Added archive')
 
-    const {items} = await client.list()
-    const [{url}] = items
+    const { items } = await client.list()
+    const [{ url }] = items
 
     t.equals(url, DAT_PROJECT_KEY, 'Archive got added to list')
 

@@ -1,77 +1,30 @@
-let yargs = require('yargs')
+const yargs = require('yargs')
 
-const SERVICE_NAME = 'dat-pin'
+const SERVICE_NAME = 'dat-store'
 
-const commands = [{
-  name: 'add',
-  command: add,
-  help: 'Pin a `dat://` read key to your pinning service to keep it online'
-}, {
-  name: 'remove',
-  command: remove,
-  help: 'Remove a `dat://` read key from your pinning service'
-}, {
-  name: 'list',
-  command: list,
-  help: 'List the `dat://` read keys that you\'ve pinned'
-}, {
-  name: 'set-service',
-  command: setService,
-  help: 'Set the URL of the pinning service you want to use'
-}, {
-  name: 'unset-service',
-  command: unsetService,
-  help: 'Resets your preferences to use your local pinning service'
-}, {
-  name: 'get-service',
-  command: getService,
-  help: 'Get the URL for your pinning service'
-}, {
-  name: 'login',
-  command: login,
-  options: [{
-    name: 'username',
-    abbr: 'u'
-  }, {
-    name: 'password',
-    abbr: 'p'
-  }],
-  help: 'Logs you into the configured pinning service. Not necessary for local services'
-}, {
-  name: 'logout',
-  command: logout,
-  help: 'Logs you out of the pinning service'
-}, {
-  name: 'run-service',
-  command: runService,
-  help: 'Runs the pinning service without installing it in the background.'
-}, {
-  name: 'install-service',
-  command: installService,
-  help: 'Installs a local pinning service on your computer. This will run in the background while your computer is active.'
-}, {
-  name: 'uninstall-service',
-  command: uninstallService,
-  help: 'Uninstalls your local pinning service.'
-}]
-
-for(let {name, command, help, options} of commands) {
-  yargs = yargs.command(name, help, (yargs) => {
-    if(!options) return yargs
-    return options.reduce((yargs, {name, abbr, help}) => {
-      return yargs.option(name, {
-        alias: abbr,
-        describe: help,
-        demandOption: true
-      })
-    }, yargs)
-  }, command)
-}
-
-yargs = yargs.scriptName('dat-pin').help()
+const commands = yargs
+  .scriptName(SERVICE_NAME)
+  .command(['add <url>', '$0 <url>'], 'Add a Dat to your storage provider.', () => void 0, add)
+  .command('remove <url>', 'Remove a Dat from your storage provider.', () => void 0, remove)
+  .command('list', 'List the Dats in your storage provider.', () => void 0, list)
+  .command('set-provider <url>', 'Set the URL of your storage provider.', () => void 0, setService)
+  .command('get-provider', 'Get the URL of your storage provider.', () => void 0, getService)
+  .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', () => void 0, unsetService)
+  .command('login <username> [password]', 'Logs you into your storage provider.', () => void 0, login)
+  .command('logout', 'Logs you out of your storage provider.', () => void 0, logout)
+  .command('run-service', 'Runs a local storage provider.', (yargs) => {
+    yargs
+      .option('storage-location')
+  }, runService)
+  .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', (yargs) => {
+    yargs
+      .option('storage-location')
+  }, installService)
+  .command('uninstall-service', 'Uninstalls your local storage service.', () => void 0, uninstallService)
+  .help()
 
 module.exports = (argv) => {
-  yargs.parse(argv)
+  commands.parse(argv)
 }
 
 function getClient (args) {
@@ -83,7 +36,7 @@ function getClient (args) {
 }
 
 async function add (args) {
-  await getClient(args).add(args._[1])
+  await getClient(args).add(args.url)
 }
 
 async function list (args) {
@@ -95,11 +48,11 @@ async function list (args) {
 }
 
 async function remove (args) {
-  await getClient(args).remove(args._[1])
+  await getClient(args).remove(args.url)
 }
 
 async function setService (args) {
-  await getClient(args).setService(args._[1])
+  await getClient(args).setService(args.url)
 }
 
 async function unsetService (args) {
@@ -113,7 +66,18 @@ async function getService (args) {
 }
 
 async function login (args) {
-  await getClient(args).login(args.username, args.password)
+  const { username, password } = args
+
+  const client = await getClient(args)
+
+  if (!password) {
+    const read = require('read')
+
+    read({ prompt: 'Enter your password:', silent: true }, (err, password) => {
+      if (err) throw err
+      client.login(username, password)
+    })
+  } else client.login(username, password)
 }
 
 async function logout (args) {
@@ -125,7 +89,7 @@ function getServiceLocation () {
   return path.join(__dirname, 'service.js')
 }
 
-function runService() {
+function runService () {
   require('./service.js')
 }
 
@@ -133,7 +97,13 @@ async function installService (args) {
   const service = require('os-service')
   const programPath = getServiceLocation()
 
-  service.add(SERVICE_NAME, { programPath }, (e) => {
+  const programArgs = []
+
+  if (args.storageLocation) {
+    programArgs.push('--storage-location', args.storageLocation)
+  }
+
+  service.add(SERVICE_NAME, { programPath, programArgs }, (e) => {
     if (e) throw e
   })
 }

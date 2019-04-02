@@ -4,17 +4,17 @@ const fs = require('fs-extra')
 const { DatPinningServiceClient } = require('dat-pinning-service-client')
 const userhome = require('userhome')
 
-const debug = require('debug')('dat-pin:client')
+const debug = require('debug')('dat-store:client')
 
-// Default location for pinning service config
-const CONFIG_LOCATION = userhome('.dat', 'pinning.json')
+// Default location for  config
+const CONFIG_LOCATION = userhome('.dat', 'store.json')
 
-// URL for pinning daemon running on localhost
+// URL for storage provider running on localhost
 const LOCAL_SERVICE = 'http://localhost:3472'
 
 module.exports =
 
-class PinClient {
+class StoreClient {
   constructor ({ configLocation }) {
     this.configLocation = configLocation || CONFIG_LOCATION
   }

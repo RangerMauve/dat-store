@@ -1,6 +1,11 @@
 const PinServer = require('./server')
 
-// TODO: Parse a config file somewhere
+const yargs = require('yargs')
+
+const argv = yargs
+  .command('$0', 'Start the store service')
+  .string('storage-location')
+  .argv
 
 const service = require('os-service')
 
@@ -14,5 +19,5 @@ run().catch((e) => {
 })
 
 async function run () {
-  await PinServer.createServer({})
+  await PinServer.createServer(argv)
 }
