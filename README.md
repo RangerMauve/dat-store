@@ -7,7 +7,7 @@ npm install -g dat-store
 # Run a store on http://localhost:3282
 dat-pin run-service
 
-# Add a dat to the  so it's always being shared
+# Add a dat to the dat-store so it's always being shared
 dat-store dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
 
 # Install local
