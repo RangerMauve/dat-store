@@ -9,7 +9,7 @@
   "bin": "bin.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datproject/dat-pin.git"
+    "url": "git+https://github.com/datproject/dat-store.git"
   },
   "keywords": [
     "dat",
@@ -22,9 +22,9 @@
   "author": "rangermauve",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/datproject/dat-pin/issues"
+    "url": "https://github.com/datproject/dat-store/issues"
   },
-  "homepage": "https://github.com/datproject/dat-pin#readme",
+  "homepage": "https://github.com/datproject/dat-store#readme",
   "dependencies": {
     "dat-librarian": "^1.1.4-alpha",
     "dat-pinning-service-client": "^2.0.2",
