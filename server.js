@@ -26,6 +26,12 @@ class StoreServer {
   async init ({ port, host, storageLocation, verbose = true, datPort }) {
     this.librarian = new DatLibrarian({
       dir: storageLocation || DEFAULT_STORAGE_LOCATION,
+      dat: {
+        // Store all data
+        latest: false,
+        temp: false,
+        live: true,
+      },
       net: {
         port: datPort
       }
