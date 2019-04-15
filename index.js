@@ -2,22 +2,22 @@ const yargs = require('yargs')
 
 const SERVICE_NAME = 'dat-store'
 
-const addStorageOption = (yargs) => yargs.option('storage-location')
-const addConfigLocation = (yargs) => yargs.option('config-location')
+const addClientOptions = (yargs) => yargs.option('storage-location')
+const addServiceOptions = (yargs) => yargs.option('config-location')
 const noOptions = () => void 0
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
-  .command(['add <url>', '$0 <url>'], 'Add a Dat to your storage provider.', addConfigLocation, add)
-  .command('remove <url>', 'Remove a Dat from your storage provider.', addConfigLocation, remove)
-  .command('list', 'List the Dats in your storage provider.', addConfigLocation, list)
-  .command('set-provider <url>', 'Set the URL of your storage provider.', addConfigLocation, setService)
-  .command('get-provider', 'Get the URL of your storage provider.', addConfigLocation, getService)
-  .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', addConfigLocation, unsetService)
-  .command('login <username> [password]', 'Logs you into your storage provider.', addConfigLocation, login)
-  .command('logout', 'Logs you out of your storage provider.', addConfigLocation, logout)
-  .command('run-service', 'Runs a local storage provider.', addStorageOption, runService)
-  .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', addStorageOption, installService)
+  .command(['add <url>', '$0 <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('remove <url>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
+  .command('list', 'List the Dats in your storage provider.', addServiceOptions, list)
+  .command('set-provider <url>', 'Set the URL of your storage provider.', addServiceOptions, setService)
+  .command('get-provider', 'Get the URL of your storage provider.', addServiceOptions, getService)
+  .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
+  .command('login <username> [password]', 'Logs you into your storage provider.', addServiceOptions, login)
+  .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
+  .command('run-service', 'Runs a local storage provider.', addClientOptions, runService)
+  .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', addClientOptions, installService)
   .command('uninstall-service', 'Uninstalls your local storage service.', noOptions, uninstallService)
   .help()
 
