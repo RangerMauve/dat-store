@@ -7,7 +7,8 @@ const addServiceOptions = (yargs) => yargs
     describe: 'The folder to store dats in'
   })
   .option('port', {
-    describe: 'The port to use for the HTTP API'
+    describe: 'The port to use for the HTTP API',
+    default: 3282
   })
   .option('host', {
     describe: 'The hostname to make the HTTP server listen on'
@@ -19,6 +20,11 @@ const addServiceOptions = (yargs) => yargs
   })
   .option('dat-port', {
     describe: 'The port to listen for P2P connections on'
+  })
+  .option('latest', {
+    describe: 'Whether to download just the latest changes',
+    default: false,
+    type: 'boolean'
   })
 const addClientOptions = (yargs) => yargs
   .option('config-location')

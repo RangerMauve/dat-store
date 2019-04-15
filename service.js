@@ -4,12 +4,27 @@ const yargs = require('yargs')
 
 const argv = yargs
   .command('$0', 'Start the store service')
-  .string('storage-location')
-  .string('dat-port')
-  .string('port')
-  .string('host')
-  .option('verbose',{
+  .option('storage-location', {
+    describe: 'The folder to store dats in'
+  })
+  .option('port', {
+    describe: 'The port to use for the HTTP API',
+    default: 3282
+  })
+  .option('host', {
+    describe: 'The hostname to make the HTTP server listen on'
+  })
+  .option('verbose', {
+    describe: 'Whether the HTTP server should output logs',
     default: true,
+    type: 'boolean'
+  })
+  .option('dat-port', {
+    describe: 'The port to listen for P2P connections on'
+  })
+  .option('latest', {
+    describe: 'Whether to download just the latest changes',
+    default: false,
     type: 'boolean'
   })
   .argv
