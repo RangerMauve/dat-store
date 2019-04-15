@@ -49,8 +49,9 @@ Commands:
 
 - Uses [dat-pinning-service-client](https://github.com/beakerbrowser/dat-pinning-service-client) to talk to storage providers that adhere to [DEP 0003](https://www.datprotocol.com/deps/0003-http-pinning-service-api/)
 - Can start a local  called `dat-store` using `dat-store install-service` (uses [os-service](https://www.npmjs.com/package/os-service))
-- Runs on `http://localhost:3472`
-- Binds to port `3282` for interacting with the P2P network
+- Runs on `http://localhost:3472`. Configure port with `--port`, configure hostname / network interface with `--host`.
+- Server logs can be turned off using `--verbose false`
+- Binds to port `3282` for interacting with the P2P network. This can be configured with the `--dat-port` CLI option.
 - The service uses [dat-librarian](https://www.npmjs.com/package/dat-librarian) to manage archives
 - The service acts as a discovery gateway for [discovery-swarm-stream](https://www.npmjs.com/package/discovery-swarm-stream)
 

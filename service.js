@@ -5,6 +5,13 @@ const yargs = require('yargs')
 const argv = yargs
   .command('$0', 'Start the store service')
   .string('storage-location')
+  .string('dat-port')
+  .string('port')
+  .string('host')
+  .option('verbose',{
+    default: true,
+    type: 'boolean'
+  })
   .argv
 
 const service = require('os-service')

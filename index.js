@@ -2,8 +2,26 @@ const yargs = require('yargs')
 
 const SERVICE_NAME = 'dat-store'
 
-const addClientOptions = (yargs) => yargs.option('storage-location')
-const addServiceOptions = (yargs) => yargs.option('config-location')
+const addServiceOptions = (yargs) => yargs
+  .option('storage-location', {
+    describe: 'The folder to store dats in'
+  })
+  .option('port', {
+    describe: 'The port to use for the HTTP API'
+  })
+  .option('host', {
+    describe: 'The hostname to make the HTTP server listen on'
+  })
+  .option('verbose', {
+    describe: 'Whether the HTTP server should output logs',
+    default: true,
+    type: 'boolean'
+  })
+  .option('dat-port', {
+    describe: 'The port to listen for P2P connections on'
+  })
+const addClientOptions = (yargs) => yargs
+  .option('config-location')
 const noOptions = () => void 0
 
 const commands = yargs
@@ -95,11 +113,7 @@ async function installService (args) {
   const service = require('os-service')
   const programPath = getServiceLocation()
 
-  const programArgs = []
-
-  if (args.storageLocation) {
-    programArgs.push('--storage-location', args.storageLocation)
-  }
+  const programArgs = process.argv.slice(3)
 
   service.add(SERVICE_NAME, { programPath, programArgs }, (e) => {
     if (e) throw e

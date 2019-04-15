@@ -23,9 +23,12 @@ class StoreServer {
     return server
   }
 
-  async init ({ port, host, storageLocation, verbose = true }) {
+  async init ({ port, host, storageLocation, verbose = true, datPort }) {
     this.librarian = new DatLibrarian({
-      dir: storageLocation || DEFAULT_STORAGE_LOCATION
+      dir: storageLocation || DEFAULT_STORAGE_LOCATION,
+      net: {
+        port: datPort
+      }
     })
 
     this.fastify = createFastify({ logger: verbose })
