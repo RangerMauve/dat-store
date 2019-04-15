@@ -53,3 +53,11 @@ Commands:
 - Binds to port `3282` for interacting with the P2P network
 - The service uses [dat-librarian](https://www.npmjs.com/package/dat-librarian) to manage archives
 - The service acts as a discovery gateway for [discovery-swarm-stream](https://www.npmjs.com/package/discovery-swarm-stream)
+
+## Where is stuff stored?
+
+This project makes use of the [env-paths](https://github.com/sindresorhus/env-paths#pathsconfig) module to determine the best place to store data based on the platform.
+
+The config file is stored using the [conf](https://github.com/sindresorhus/conf) module, with the name `dat-store`. You can override the folder it'll be stored in with the `--config-location` flag.
+
+The store service is using the [data](https://github.com/sindresorhus/env-paths#pathsdata) directory, also with the name `dat-store`. You can override the folder the data will be stored at using the `--storage-location` flag.
