@@ -19,7 +19,8 @@ test('Talk to server with client', async (t) => {
     t.pass('Initialized client')
 
     const server = await PinServer.createServer({
-      storageLocation
+      storageLocation,
+      verbose: false
     })
 
     t.pass('Initialized server')

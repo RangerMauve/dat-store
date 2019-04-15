@@ -1,14 +1,14 @@
 const DatLibrarian = require('dat-librarian')
 const createFastify = require('fastify')
 const pda = require('pauls-dat-api')
-const userhome = require('userhome')
 const DSS = require('discovery-swarm-stream/server')
 const DAT_SWARM_DEFAULTS = require('dat-swarm-defaults')
+const envPaths = require('env-paths')
 
 const SWARM_OPTS = DAT_SWARM_DEFAULTS({
   hash: false
 })
-const DEFAULT_STORAGE_LOCATION = userhome('.dat', 'store-data')
+const DEFAULT_STORAGE_LOCATION = envPaths('dat-store').data
 const DEFAULT_PORT = 3472
 const DEFAULT_HOST = '::'
 
@@ -23,12 +23,12 @@ class StoreServer {
     return server
   }
 
-  async init ({ port, host, storageLocation }) {
+  async init ({ port, host, storageLocation, verbose = true }) {
     this.librarian = new DatLibrarian({
       dir: storageLocation || DEFAULT_STORAGE_LOCATION
     })
 
-    this.fastify = createFastify({ logger: true })
+    this.fastify = createFastify({ logger: verbose })
 
     this.dss = new DSS(SWARM_OPTS)
 

@@ -1,13 +1,10 @@
 const util = require('util')
 const fs = require('fs-extra')
+const Conf = require('conf')
 
 const { DatPinningServiceClient } = require('dat-pinning-service-client')
-const userhome = require('userhome')
 
 const debug = require('debug')('dat-store:client')
-
-// Default location for  config
-const CONFIG_LOCATION = userhome('.dat', 'store.json')
 
 // URL for storage provider running on localhost
 const LOCAL_SERVICE = 'http://localhost:3472'
@@ -20,7 +17,13 @@ module.exports =
 
 class StoreClient {
   constructor ({ configLocation }) {
-    this.configLocation = configLocation || CONFIG_LOCATION
+    const options = {}
+
+    if (configLocation) {
+      options.cwd = configLocation
+    }
+
+    this.config = new Conf(options)
   }
 
   async getConfig () {
@@ -38,10 +41,7 @@ class StoreClient {
   }
 
   async updateConfig (data) {
-    const current = await this.getConfig()
-    const final = Object.assign({}, current, data)
-    await fs.ensureFile(this.configLocation)
-    await fs.writeJSON(this.configLocation, final, { spaces: 2 })
+    this.config.set(data)
   }
 
   async ensureInit () {
@@ -51,16 +51,14 @@ class StoreClient {
   }
 
   async init () {
-    this.config = await this.getConfig()
-    const { service, token } = this.config
-    this.service = service || LOCAL_SERVICE
-    this.token = token
+    this.service = this.config.get('service', LOCAL_SERVICE)
+    this.token = this.config.get('token', null)
 
     this.client = new DatPinningServiceClient(this.service)
     try {
       await this.callClient('fetchPSADoc')
       if (this.token) {
-        this.client.setSession(token)
+        this.client.setSession(this.token)
       }
     } catch (e) {
       debug(e)
@@ -68,7 +66,7 @@ class StoreClient {
   }
 
   ensureService () {
-    if(!this.client.psaDoc) throw new Error(ERROR_NO_SERVICE(this.service))
+    if (!this.client.psaDoc) throw new Error(ERROR_NO_SERVICE(this.service))
   }
 
   async callClient (method, ...args) {
