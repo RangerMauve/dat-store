@@ -12,6 +12,10 @@ const CONFIG_LOCATION = userhome('.dat', 'store.json')
 // URL for storage provider running on localhost
 const LOCAL_SERVICE = 'http://localhost:3472'
 
+const ERROR_NO_SERVICE = (service) => `Could not connect to service ${this.service}
+Make sure you have a local service running with 'dat store install-service'
+Also check if the remote service you have configured is online`
+
 module.exports =
 
 class StoreClient {
@@ -63,12 +67,17 @@ class StoreClient {
     }
   }
 
+  ensureService () {
+    if(!this.client.psaDoc) throw new Error(ERROR_NO_SERVICE(this.service))
+  }
+
   async callClient (method, ...args) {
     return util.promisify(this.client[method]).call(this.client, ...args)
   }
 
   async login (username, password) {
     await this.ensureInit()
+    this.ensureService()
 
     await this.callClient('login', username, password)
     const token = this.client.sessionToken
@@ -79,6 +88,7 @@ class StoreClient {
 
   async logout () {
     await this.ensureInit()
+    this.ensureService()
 
     await this.updateConfig({
       token: null
@@ -112,18 +122,21 @@ class StoreClient {
 
   async add (url) {
     await this.ensureInit()
+    this.ensureService()
 
     return this.callClient('addDat', { url })
   }
 
   async list () {
     await this.ensureInit()
+    this.ensureService()
 
     return this.callClient('listDats')
   }
 
   async remove (url) {
     await this.ensureInit()
+    this.ensureService()
 
     return this.callClient('removeDat', url)
   }
