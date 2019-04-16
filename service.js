@@ -9,7 +9,7 @@ const argv = yargs
   })
   .option('port', {
     describe: 'The port to use for the HTTP API',
-    default: 3282
+    default: 3472
   })
   .option('host', {
     describe: 'The hostname to make the HTTP server listen on'
@@ -20,7 +20,8 @@ const argv = yargs
     type: 'boolean'
   })
   .option('dat-port', {
-    describe: 'The port to listen for P2P connections on'
+    describe: 'The port to listen for P2P connections on',
+    default: 3282
   })
   .option('latest', {
     describe: 'Whether to download just the latest changes',
