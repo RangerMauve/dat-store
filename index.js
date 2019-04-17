@@ -24,7 +24,7 @@ const addServiceOptions = (yargs) => yargs
   })
   .option('latest', {
     describe: 'Whether to download just the latest changes',
-    default: false,
+    default: false,041
     type: 'boolean'
   })
 const addClientOptions = (yargs) => yargs
@@ -33,11 +33,11 @@ const noOptions = () => void 0
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
-  .command(['add <url>', '$0 <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
-  .command('remove <url>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
-  .command('list', 'List the Dats in your storage provider.', addServiceOptions, list)
-  .command('set-provider <url>', 'Set the URL of your storage provider.', addServiceOptions, setService)
-  .command('get-provider', 'Get the URL of your storage provider.', addServiceOptions, getService)
+  .command(['add [provider] <url>', '$0 [provider] <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('remove [provider] <url>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
+  .command('list [provider] ', 'List the Dats in your storage provider.', addServiceOptions, list)
+  .command('set-provider [provider] <url>', 'Set the URL of your storage provider.', addServiceOptions, setService)
+  .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)
   .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
   .command('login <username> [password]', 'Logs you into your storage provider.', addServiceOptions, login)
   .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)

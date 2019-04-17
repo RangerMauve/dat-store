@@ -2,8 +2,8 @@ const os = require('os')
 const path = require('path')
 const test = require('tape')
 
-const PinServer = require('./server')
-const PinClient = require('./client')
+const StoreServer = require('./server')
+const StoreClient = require('./client')
 
 const LOCAL_SERVICE = 'http://localhost:3472'
 
@@ -12,13 +12,13 @@ test('Talk to server with client', async (t) => {
     const configLocation = path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2, 16))
     const storageLocation = path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2, 16))
 
-    const client = new PinClient({
+    const client = new StoreClient({
       configLocation
     })
 
     t.pass('Initialized client')
 
-    const server = await PinServer.createServer({
+    const server = await StoreServer.createServer({
       storageLocation,
       verbose: false
     })
@@ -58,6 +58,24 @@ test('Talk to server with client', async (t) => {
     const [{ url }] = items
 
     t.equals(url, DAT_PROJECT_KEY, 'Archive got added to list')
+
+    const provider = 'example'
+    const providerURL = 'example-service.com'
+
+    const providerClient = new StoreClient({
+      configLocation,
+      provider
+    })
+
+    t.pass('Create a client with provider name')
+
+    await providerClient.setService(providerURL)
+
+    t.pass('Set service with provider')
+
+    const persistedProviderURL = await providerClient.getService()
+
+    t.equals(persistedProviderURL, providerURL, 'Provider service persisted')
 
     await server.destroy()
 

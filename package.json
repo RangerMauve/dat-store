@@ -35,7 +35,6 @@
     "env-paths": "^2.2.0",
     "fastify": "^2.1.0",
     "fastify-websocket": "^0.3.0",
-    "fs-extra": "^7.0.1",
     "os-service": "^2.1.3",
     "pauls-dat-api": "^8.1.0",
     "read": "^1.0.7",
