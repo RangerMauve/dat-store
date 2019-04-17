@@ -108,7 +108,14 @@ class StoreServer {
     this.fastify.post('/v1/dats/add', async ({ body }) => {
       const { url } = body
 
-      await this.librarian.add(url)
+      const { archive } = await this.librarian.add(url)
+
+      await new Promise((resolve, reject) => {
+        archive.ready((err) => {
+          if (err) reject(err)
+          else resolve()
+        })
+      })
 
       return {}
     })

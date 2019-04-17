@@ -59,6 +59,17 @@ test('Talk to server with client', async (t) => {
 
     t.equals(url, DAT_PROJECT_KEY, 'Archive got added to list')
 
+    const RAW_KEY = DAT_PROJECT_KEY.slice('dat://'.length)
+    const contentPath = path.join(storageLocation, RAW_KEY)
+
+    await client.remove(contentPath)
+
+    t.pass('Removed / Referenced by path')
+
+    const { items: finalItems } = await client.list()
+
+    t.deepEquals(finalItems, [], 'Key got removed')
+
     const provider = 'example'
     const providerURL = 'example-service.com'
 

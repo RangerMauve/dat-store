@@ -1,5 +1,8 @@
 # dat-store
-An extension for the Dat CLI to support storage providers
+
+dat-store aims to solve the question of "How do I make sure my Dat is being shared".
+
+It can be used as an extension for the Dat CLI to add your Dats to "stores" that will keep a copy of your content and keep it online.
 
 ```shell
 npm install -g dat-store

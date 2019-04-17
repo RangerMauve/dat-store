@@ -24,7 +24,7 @@ const addServiceOptions = (yargs) => yargs
   })
   .option('latest', {
     describe: 'Whether to download just the latest changes',
-    default: false,041
+    default: false,
     type: 'boolean'
   })
 const addClientOptions = (yargs) => yargs
@@ -33,8 +33,8 @@ const noOptions = () => void 0
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
-  .command(['add [provider] <url>', '$0 [provider] <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
-  .command('remove [provider] <url>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
+  .command(['add [provider] <url|path>', '$0 [provider] <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('remove [provider] <url|path>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
   .command('list [provider] ', 'List the Dats in your storage provider.', addServiceOptions, list)
   .command('set-provider [provider] <url>', 'Set the URL of your storage provider.', addServiceOptions, setService)
   .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)

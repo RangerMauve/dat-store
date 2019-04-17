@@ -1,5 +1,8 @@
 const util = require('util')
+const path = require('path')
+const fs = require('fs-extra')
 const Conf = require('conf')
+const DatEncoding = require('dat-encoding')
 
 const { DatPinningServiceClient } = require('dat-pinning-service-client')
 
@@ -12,6 +15,7 @@ const ERROR_NO_SERVICE = (service) => `Could not connect to service ${service}
 Make sure you have a local service running with 'dat store install-service'
 Also check if the remote service you have configured is online`
 const ERROR_NO_PROVIDER = (provider) => `Provider URL not set for ${provider}`
+const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
 
 module.exports =
 
@@ -36,6 +40,34 @@ class StoreClient {
     if (this.initialized) return
     await this.init()
     this.initialized = true
+  }
+
+  async resolveURL (url) {
+    try {
+      const key = DatEncoding.decode(url)
+      return DatEncoding.encode(key)
+    } catch (e) {
+      // Probably a DNS based Dat URL
+      if (url.startsWith('dat://')) {
+        return url
+      }
+      // Probably a folder path
+      const cwd = process.cwd()
+      const fullPath = path.resolve(cwd, url)
+      const keyLocation = path.resolve(fullPath, './.dat/metadata.key')
+      try {
+        const key = await fs.readFile(keyLocation)
+        return DatEncoding.encode(key)
+      } catch (e) {
+        try {
+          const rawLocation = path.resolve(fullPath, './metadata.key')
+          const key = await fs.readFile(rawLocation)
+          return DatEncoding.encode(key)
+        } catch (e) {
+          throw new Error(ERROR_NOT_DAT_DIRECTORY(url))
+        }
+      }
+    }
   }
 
   async getProviders () {
@@ -131,6 +163,8 @@ class StoreClient {
   }
 
   async add (url) {
+    url = await this.resolveURL(url)
+
     await this.ensureInit()
 
     return this.callClient('addDat', { url })
@@ -143,6 +177,8 @@ class StoreClient {
   }
 
   async remove (url) {
+    url = await this.resolveURL(url)
+
     await this.ensureInit()
 
     return this.callClient('removeDat', url)
