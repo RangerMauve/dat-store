@@ -3,7 +3,6 @@ const path = require('path')
 const fs = require('fs-extra')
 const Conf = require('conf')
 const DatEncoding = require('dat-encoding')
-
 const { DatPinningServiceClient } = require('dat-pinning-service-client')
 
 const debug = require('debug')('dat-store:client')
@@ -45,7 +44,7 @@ class StoreClient {
   async resolveURL (url) {
     try {
       const key = DatEncoding.decode(url)
-      return DatEncoding.encode(key)
+      return `dat://` + DatEncoding.encode(key)
     } catch (e) {
       // Probably a DNS based Dat URL
       if (url.startsWith('dat://')) {
@@ -57,12 +56,12 @@ class StoreClient {
       const keyLocation = path.resolve(fullPath, './.dat/metadata.key')
       try {
         const key = await fs.readFile(keyLocation)
-        return DatEncoding.encode(key)
+        return `dat://` + DatEncoding.encode(key)
       } catch (e) {
         try {
           const rawLocation = path.resolve(fullPath, './metadata.key')
           const key = await fs.readFile(rawLocation)
-          return DatEncoding.encode(key)
+          return `dat://` + DatEncoding.encode(key)
         } catch (e) {
           throw new Error(ERROR_NOT_DAT_DIRECTORY(url))
         }
@@ -163,9 +162,14 @@ class StoreClient {
   }
 
   async add (url) {
-    url = await this.resolveURL(url)
-
     await this.ensureInit()
+
+    const service = await this.getService()
+
+    // If it's a local service, pass it file paths directly
+    if (service !== LOCAL_SERVICE) {
+      url = await this.resolveURL(url)
+    }
 
     return this.callClient('addDat', { url })
   }
@@ -177,9 +181,14 @@ class StoreClient {
   }
 
   async remove (url) {
-    url = await this.resolveURL(url)
-
     await this.ensureInit()
+
+    const service = await this.getService()
+
+    // If it's a local service, pass it file paths directly
+    if (service !== LOCAL_SERVICE) {
+      url = await this.resolveURL(url)
+    }
 
     return this.callClient('removeDat', url)
   }

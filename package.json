@@ -27,8 +27,9 @@
   "homepage": "https://github.com/datproject/dat-store#readme",
   "dependencies": {
     "conf": "^4.0.1",
+    "dat-dns": "^3.2.1",
     "dat-encoding": "^5.0.1",
-    "dat-librarian": "^1.1.4-alpha",
+    "dat-ignore": "^2.1.2",
     "dat-pinning-service-client": "^2.0.2",
     "dat-swarm-defaults": "^1.0.2",
     "debug": "^4.1.1",
@@ -37,8 +38,12 @@
     "fastify": "^2.1.0",
     "fastify-websocket": "^0.3.0",
     "fs-extra": "^7.0.1",
+    "hyperdiscovery": "github:joehand/hyperdiscovery#multiple-cores",
+    "hyperdrive": "^9.14.5",
+    "mirror-folder": "^3.0.0",
     "os-service": "^2.1.3",
     "pauls-dat-api": "^8.1.0",
+    "random-access-file": "^2.1.1",
     "read": "^1.0.7",
     "yargs": "^13.2.2"
   },

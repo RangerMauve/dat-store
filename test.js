@@ -1,16 +1,21 @@
 const os = require('os')
 const path = require('path')
 const test = require('tape')
+const fs = require('fs-extra')
+const Hyperdrive = require('hyperdrive')
 
 const StoreServer = require('./server')
 const StoreClient = require('./client')
+const storage = require('./storage')
 
 const LOCAL_SERVICE = 'http://localhost:3472'
 
 test('Talk to server with client', async (t) => {
   try {
-    const configLocation = path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2, 16))
-    const storageLocation = path.join(os.tmpdir(), 'dat-pin-' + Math.random().toString().slice(2, 16))
+    const tmpFolder = path.join(os.tmpdir(), 'dat-store-' + Math.random().toString().slice(2, 16))
+    const configLocation = path.join(tmpFolder, 'config')
+    const storageLocation = path.join(tmpFolder, 'storage')
+    const hyperdriveLocation = path.join(tmpFolder, 'drive')
 
     const client = new StoreClient({
       configLocation
@@ -59,16 +64,34 @@ test('Talk to server with client', async (t) => {
 
     t.equals(url, DAT_PROJECT_KEY, 'Archive got added to list')
 
-    const RAW_KEY = DAT_PROJECT_KEY.slice('dat://'.length)
-    const contentPath = path.join(storageLocation, RAW_KEY)
+    await client.remove(DAT_PROJECT_KEY)
 
-    await client.remove(contentPath)
-
-    t.pass('Removed / Referenced by path')
+    t.pass('Removed archive')
 
     const { items: finalItems } = await client.list()
 
     t.deepEquals(finalItems, [], 'Key got removed')
+
+    const tmpArchive = new Hyperdrive(storage(path.join(hyperdriveLocation, '.dat')))
+
+    // Generate the metadata, then close
+    await new Promise((resolve) => tmpArchive.ready(resolve))
+    await new Promise((resolve) => tmpArchive.close(resolve))
+
+    await client.add(hyperdriveLocation)
+
+    t.pass('Added archive from folder')
+
+    const { items: localItems } = await client.list()
+    const [{ url: localURL }] = localItems
+
+    const expectedKey = `dat://` + tmpArchive.key.toString('hex')
+
+    t.equals(localURL, expectedKey, 'Local archive got loaded')
+
+    await client.remove(hyperdriveLocation)
+
+    t.pass('Removed archive')
 
     const provider = 'example'
     const providerURL = 'example-service.com'
@@ -92,8 +115,11 @@ test('Talk to server with client', async (t) => {
 
     t.pass('Destroyed server')
 
+    // await fs.remove(tmpFolder)
+
     t.end()
   } catch (e) {
+    console.log(e.stack)
     t.fail(e)
   }
 })
