@@ -38,7 +38,7 @@
     "fastify": "^2.1.0",
     "fastify-websocket": "^0.3.0",
     "fs-extra": "^7.0.1",
-    "hyperdiscovery": "github:joehand/hyperdiscovery#multiple-cores",
+    "hyperdiscovery": "^9.0.0",
     "hyperdrive": "^9.14.5",
     "mirror-folder": "^3.0.0",
     "os-service": "^2.1.3",

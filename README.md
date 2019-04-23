@@ -86,3 +86,13 @@ The store service is using the [data](https://github.com/sindresorhus/env-paths#
 ## How do I deal with multiple stores?
 
 `dat-store` supports multiple remote stores using the optional `provider` CLI argument. Whenever you `add` `remove` or `list`, you can specify a provider argument to tell the CLI which store it should be talking to. Think of providers as being similar to [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes)
+
+## How do I add a folder?
+
+Depending on where a store is located, there are different ways that it can handle folders.
+
+For local stores, you when you specify a folder, it'll behave similarly to the [dat share](https://github.com/datproject/dat#sharing-data) command, but instead of needing to have the command running all the time, it'll be handled by the store. The store will load up the dat archive inside your folder, watch for changes, and share them with the rest of the network.
+
+For remote stores, it's a little different. Since a remote store is running on a different computer, it doesn't have a way to access your local folder. In that case, dat-store will find the Dat URL from inside the folder and will send it out to the store like it normally would.
+
+These two modes of operation can be combined together. When you create a dat, add it to your local store. Then add the URL to the remote store. This way, when you make a change to the folder, the local store will update the Dat, and the remote store will get the change and spread it to the rest of the network.

@@ -215,7 +215,7 @@ class Library {
     await Promise.all([...this.urls.keys()].map((url) => this.unloadURL(url)))
     await Promise.all([...this.folders.keys()].map((folder) => this.unloadFolder(folder)))
 
-    this.discovery.close()
+    await this.discovery.close()
   }
 }
 
