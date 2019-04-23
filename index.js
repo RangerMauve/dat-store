@@ -35,7 +35,7 @@ const commands = yargs
   .scriptName(SERVICE_NAME)
   .command(['add [provider] <url|path>', '$0 [provider] <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
   .command('remove [provider] <url|path>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
-  .command('list [provider] ', 'List the Dats in your storage provider.', addServiceOptions, list)
+  .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
   .command('set-provider [provider] <url>', 'Set the URL of your storage provider.', addServiceOptions, setService)
   .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)
   .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
