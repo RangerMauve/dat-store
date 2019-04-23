@@ -209,6 +209,8 @@ class Library {
   async saveFolders () {
     const folders = this.folders.keys()
 
+    await this.ensureDir(this.storageLocation)
+
     await fs.writeJSON(this.folderListLocation, folders)
   }
 
