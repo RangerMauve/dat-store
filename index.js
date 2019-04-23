@@ -2,25 +2,48 @@ const yargs = require('yargs')
 
 const SERVICE_NAME = 'dat-store'
 
+const addServiceOptions = (yargs) => yargs
+  .option('storage-location', {
+    describe: 'The folder to store dats in'
+  })
+  .option('port', {
+    describe: 'The port to use for the HTTP API',
+    default: 3472
+  })
+  .option('host', {
+    describe: 'The hostname to make the HTTP server listen on'
+  })
+  .option('verbose', {
+    describe: 'Whether the HTTP server should output logs',
+    default: true,
+    type: 'boolean'
+  })
+  .option('dat-port', {
+    describe: 'The port to listen for P2P connections on',
+    default: 3282
+  })
+  .option('latest', {
+    describe: 'Whether to download just the latest changes',
+    default: false,
+    type: 'boolean'
+  })
+const addClientOptions = (yargs) => yargs
+  .option('config-location')
+const noOptions = () => void 0
+
 const commands = yargs
   .scriptName(SERVICE_NAME)
-  .command(['add <url>', '$0 <url>'], 'Add a Dat to your storage provider.', () => void 0, add)
-  .command('remove <url>', 'Remove a Dat from your storage provider.', () => void 0, remove)
-  .command('list', 'List the Dats in your storage provider.', () => void 0, list)
-  .command('set-provider <url>', 'Set the URL of your storage provider.', () => void 0, setService)
-  .command('get-provider', 'Get the URL of your storage provider.', () => void 0, getService)
-  .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', () => void 0, unsetService)
-  .command('login <username> [password]', 'Logs you into your storage provider.', () => void 0, login)
-  .command('logout', 'Logs you out of your storage provider.', () => void 0, logout)
-  .command('run-service', 'Runs a local storage provider.', (yargs) => {
-    yargs
-      .option('storage-location')
-  }, runService)
-  .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', (yargs) => {
-    yargs
-      .option('storage-location')
-  }, installService)
-  .command('uninstall-service', 'Uninstalls your local storage service.', () => void 0, uninstallService)
+  .command(['add [provider] <url|path>', '$0 [provider] <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('remove [provider] <url|path>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
+  .command('list [provider] ', 'List the Dats in your storage provider.', addServiceOptions, list)
+  .command('set-provider [provider] <url>', 'Set the URL of your storage provider.', addServiceOptions, setService)
+  .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)
+  .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
+  .command('login <username> [password]', 'Logs you into your storage provider.', addServiceOptions, login)
+  .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
+  .command('run-service', 'Runs a local storage provider.', addClientOptions, runService)
+  .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', addClientOptions, installService)
+  .command('uninstall-service', 'Uninstalls your local storage service.', noOptions, uninstallService)
   .help()
 
 module.exports = (argv) => {
@@ -97,11 +120,7 @@ async function installService (args) {
   const service = require('os-service')
   const programPath = getServiceLocation()
 
-  const programArgs = []
-
-  if (args.storageLocation) {
-    programArgs.push('--storage-location', args.storageLocation)
-  }
+  const programArgs = process.argv.slice(3)
 
   service.add(SERVICE_NAME, { programPath, programArgs }, (e) => {
     if (e) throw e

@@ -1,16 +1,21 @@
-const DatLibrarian = require('dat-librarian')
 const createFastify = require('fastify')
 const pda = require('pauls-dat-api')
-const userhome = require('userhome')
 const DSS = require('discovery-swarm-stream/server')
 const DAT_SWARM_DEFAULTS = require('dat-swarm-defaults')
+const envPaths = require('env-paths')
+const fs = require('fs-extra')
+const path = require('path')
+
+const Library = require('./library')
 
 const SWARM_OPTS = DAT_SWARM_DEFAULTS({
   hash: false
 })
-const DEFAULT_STORAGE_LOCATION = userhome('.dat', 'store-data')
+const DEFAULT_STORAGE_LOCATION = envPaths('dat-store').data
 const DEFAULT_PORT = 3472
 const DEFAULT_HOST = '::'
+
+const ERROR_NOT_LOCAL = (path, ip) => `Cannot Add File Path From Remote IP ${path}, ${ip}`
 
 module.exports =
 
@@ -23,16 +28,21 @@ class StoreServer {
     return server
   }
 
-  async init ({ port, host, storageLocation }) {
-    this.librarian = new DatLibrarian({
-      dir: storageLocation || DEFAULT_STORAGE_LOCATION
+  async init ({ port, host, storageLocation, verbose = true, datPort = 3282, latest = false }) {
+    const dir = storageLocation || DEFAULT_STORAGE_LOCATION
+    this.library = new Library({
+      storageLocation, datPort, latest
     })
 
-    this.fastify = createFastify({ logger: true })
+    this.dir = dir
+
+    this.fastify = createFastify({ logger: verbose })
 
     this.dss = new DSS(SWARM_OPTS)
 
-    await this.librarian.load()
+    await this.library.load()
+
+    await this.loadFolders()
 
     this.initRoutes()
 
@@ -44,6 +54,23 @@ class StoreServer {
       port || DEFAULT_PORT,
       host || DEFAULT_HOST
     )
+  }
+
+  async loadFolders () {
+    const { dir } = this
+    const folderFileLocation = path.join(dir, 'folders.json')
+
+    try {
+      this.folders = await fs.readJSON(folderFileLocation)
+    } catch (e) {
+      this.folders = []
+    }
+
+    await Promise.all(this.folders.map((folder) => this.loadFolder(folder)))
+  }
+
+  async loadFolder (path) {
+
   }
 
   initRoutes () {
@@ -81,7 +108,7 @@ class StoreServer {
     })
 
     this.fastify.get('/v1/dats/', async () => {
-      const keys = await this.librarian.list()
+      const keys = await this.library.list()
 
       const items = []
 
@@ -96,21 +123,29 @@ class StoreServer {
       }
     })
 
-    this.fastify.post('/v1/dats/add', async ({ body }) => {
-      const { url } = body
+    this.fastify.post('/v1/dats/add', async ({ body, ip }) => {
+        const { url } = body
 
-      await this.librarian.add(url)
-
+        if (url.startsWith('dat://')) {
+          await this.library.addURL(url)
+        } else {
+          if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
+          await this.library.addFolder(url)
+        }
       return {}
     })
 
-    this.fastify.post('/v1/dats/remove', async ({ body }) => {
+    this.fastify.post('/v1/dats/remove', async ({ body, ip }) => {
+      try {
       const { url } = body
 
-      // Make sure the dat is fully loaded before removing it
-      await this.librarian.get(url)
-
-      await this.librarian.remove(url)
+      if (url.startsWith('dat://')) {
+        await this.library.removeURL(url)
+      } else {
+        if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
+        await this.library.removeFolder(url)
+      }
+    } catch (e) { console.error(e) }
 
       return {}
     })
@@ -127,7 +162,7 @@ class StoreServer {
   }
 
   async getMetadata (key) {
-    const { archive } = await this.librarian.get(key)
+    const archive = await this.library.get(key)
 
     let manifest = {
       name: key
@@ -139,7 +174,7 @@ class StoreServer {
     }
 
     return {
-      url: `dat://${key.toString('hex')}`,
+      url: `dat://${archive.key.toString('hex')}`,
       name: manifest.name,
       title: manifest.title,
       description: manifest.description,
@@ -161,6 +196,6 @@ class StoreServer {
       })
     })
 
-    await this.librarian.close()
+    await this.library.close()
   }
 }
