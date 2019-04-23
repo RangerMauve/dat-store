@@ -20,7 +20,9 @@ module.exports =
 
 class StoreClient {
   constructor ({ configLocation, provider }) {
-    const options = {}
+    const options = {
+      projectName: 'dat-store'
+    }
 
     this.provider = provider
 

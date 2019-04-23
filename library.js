@@ -48,8 +48,8 @@ class Library {
   async get (url) {
     const entries = [...this.urls.entries(), ...this.folders.entries()]
 
-    for(let [key, archive] of entries) {
-      if(key === url) return archive
+    for (let [key, archive] of entries) {
+      if (key === url) return archive
       const archiveURL = 'dat://' + DatEncoding.encode(archive.key)
       if (archiveURL === url) return archive
     }
@@ -83,7 +83,7 @@ class Library {
   async unloadArchive (archive) {
     this.unreplicate(archive)
 
-    if(archive.mirror) archive.mirror.destroy()
+    if (archive.mirror) archive.mirror.destroy()
 
     await awaitFN(archive, 'close')
   }
@@ -132,7 +132,7 @@ class Library {
 
     await this.addArchive(archive)
 
-    if(!hasDotDat) return archive
+    if (!hasDotDat) return archive
 
     // Based on dat-node importer
     // https://github.com/datproject/dat-node/blob/master/lib/import-files.js#L9

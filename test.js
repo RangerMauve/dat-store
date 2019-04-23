@@ -115,7 +115,7 @@ test('Talk to server with client', async (t) => {
 
     t.pass('Destroyed server')
 
-    // await fs.remove(tmpFolder)
+    await fs.remove(tmpFolder)
 
     t.end()
   } catch (e) {

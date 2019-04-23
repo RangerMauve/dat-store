@@ -29,12 +29,13 @@ class StoreServer {
   }
 
   async init ({ port, host, storageLocation, verbose = true, datPort = 3282, latest = false }) {
-    const dir = storageLocation || DEFAULT_STORAGE_LOCATION
+    storageLocation = storageLocation || DEFAULT_STORAGE_LOCATION
+
     this.library = new Library({
       storageLocation, datPort, latest
     })
 
-    this.dir = dir
+    this.dir = storageLocation
 
     this.fastify = createFastify({ logger: verbose })
 
@@ -124,28 +125,28 @@ class StoreServer {
     })
 
     this.fastify.post('/v1/dats/add', async ({ body, ip }) => {
-        const { url } = body
+      const { url } = body
 
-        if (url.startsWith('dat://')) {
-          await this.library.addURL(url)
-        } else {
-          if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
-          await this.library.addFolder(url)
-        }
+      if (url.startsWith('dat://')) {
+        await this.library.addURL(url)
+      } else {
+        if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
+        await this.library.addFolder(url)
+      }
       return {}
     })
 
     this.fastify.post('/v1/dats/remove', async ({ body, ip }) => {
       try {
-      const { url } = body
+        const { url } = body
 
-      if (url.startsWith('dat://')) {
-        await this.library.removeURL(url)
-      } else {
-        if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
-        await this.library.removeFolder(url)
-      }
-    } catch (e) { console.error(e) }
+        if (url.startsWith('dat://')) {
+          await this.library.removeURL(url)
+        } else {
+          if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
+          await this.library.removeFolder(url)
+        }
+      } catch (e) { console.error(e) }
 
       return {}
     })
