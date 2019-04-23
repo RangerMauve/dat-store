@@ -138,7 +138,7 @@ class Library {
     if (!hasDotDat) return archive
 
     // If we can't write to the archive, don't try to watch changes
-    if(!archive.writable) return archive
+    if (!archive.writable) return archive
 
     // Based on dat-node importer
     // https://github.com/datproject/dat-node/blob/master/lib/import-files.js#L9

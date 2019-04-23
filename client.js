@@ -43,7 +43,7 @@ class StoreClient {
     this.initialized = true
   }
 
-  async resolveURL (url) {
+  async resolveURL (service, url) {
     try {
       const key = DatEncoding.decode(url)
       return `dat://` + DatEncoding.encode(key)
@@ -52,17 +52,25 @@ class StoreClient {
       if (url.startsWith('dat://')) {
         return url
       }
+
       // Probably a folder path
       const cwd = process.cwd()
       const fullPath = path.resolve(cwd, url)
       const keyLocation = path.resolve(fullPath, './.dat/metadata.key')
+
       try {
         const key = await fs.readFile(keyLocation)
+        if (service === LOCAL_SERVICE) {
+          return fullPath
+        }
         return `dat://` + DatEncoding.encode(key)
       } catch (e) {
         try {
           const rawLocation = path.resolve(fullPath, './metadata.key')
           const key = await fs.readFile(rawLocation)
+          if (service === LOCAL_SERVICE) {
+            return fullPath
+          }
           return `dat://` + DatEncoding.encode(key)
         } catch (e) {
           throw new Error(ERROR_NOT_DAT_DIRECTORY(url))
@@ -168,12 +176,8 @@ class StoreClient {
 
     const service = await this.getService()
 
-    // If it's a local service, pass it file paths directly
-    if (service !== LOCAL_SERVICE) {
-      url = await this.resolveURL(url)
-    } else {
-      url = path.resolve(process.cwd(), url)
-    }
+    // Resolve the URL to either the Dat key or a local path
+    url = await this.resolveURL(service, url)
 
     return this.callClient('addDat', { url })
   }
@@ -189,12 +193,8 @@ class StoreClient {
 
     const service = await this.getService()
 
-    // If it's a local service, pass it file paths directly
-    if (service !== LOCAL_SERVICE) {
-      url = await this.resolveURL(url)
-    } else {
-      url = path.resolve(process.cwd(), url)
-    }
+    // Resolve the URL to either the Dat key or a local path
+    url = await this.resolveURL(service, url)
 
     return this.callClient('removeDat', url)
   }
