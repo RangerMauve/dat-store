@@ -132,6 +132,8 @@ class Library {
 
     await this.addArchive(archive)
 
+    await this.saveFolders()
+
     // If there's no `.dat` folder, don't try to watch for changes
     if (!hasDotDat) return archive
 
