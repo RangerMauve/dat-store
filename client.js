@@ -171,6 +171,8 @@ class StoreClient {
     // If it's a local service, pass it file paths directly
     if (service !== LOCAL_SERVICE) {
       url = await this.resolveURL(url)
+    } else {
+      url = path.resolve(process.cwd(), url)
     }
 
     return this.callClient('addDat', { url })
@@ -190,6 +192,8 @@ class StoreClient {
     // If it's a local service, pass it file paths directly
     if (service !== LOCAL_SERVICE) {
       url = await this.resolveURL(url)
+    } else {
+      url = path.resolve(process.cwd(), url)
     }
 
     return this.callClient('removeDat', url)

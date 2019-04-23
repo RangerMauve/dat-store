@@ -132,7 +132,11 @@ class Library {
 
     await this.addArchive(archive)
 
+    // If there's no `.dat` folder, don't try to watch for changes
     if (!hasDotDat) return archive
+
+    // If we can't write to the archive, don't try to watch changes
+    if(!archive.writable) return archive
 
     // Based on dat-node importer
     // https://github.com/datproject/dat-node/blob/master/lib/import-files.js#L9
