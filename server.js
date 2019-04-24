@@ -8,9 +8,6 @@ const path = require('path')
 
 const Library = require('./library')
 
-const SWARM_OPTS = DAT_SWARM_DEFAULTS({
-  hash: false
-})
 const DEFAULT_STORAGE_LOCATION = envPaths('dat-store').data
 const DEFAULT_PORT = 3472
 const DEFAULT_HOST = '::'
@@ -39,7 +36,11 @@ class StoreServer {
 
     this.fastify = createFastify({ logger: verbose })
 
-    this.dss = new DSS(SWARM_OPTS)
+    const swarmOpts = DAT_SWARM_DEFAULTS({
+      hash: false
+    })
+
+    this.dss = new DSS(swarmOpts)
 
     await this.library.load()
 

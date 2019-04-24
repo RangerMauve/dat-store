@@ -25,7 +25,9 @@ class Library {
     this.folderListLocation = path.join(storageLocation, 'folders.json')
 
     this.discovery = createDiscovery({
-      port: datPort
+      port: datPort,
+      // Had issues with tests failing when UTP was enabled
+      utp: false
     })
   }
 
@@ -204,12 +206,12 @@ class Library {
     if(!folders || !Array.isArray(folders)) return
 
     await Promise.all(folders.map((path) => {
-      return this.loadFolder(path)
+      return this.addFolder(path)
     }))
   }
 
   async saveFolders () {
-    const folders = this.folders.keys()
+    const folders = [...this.folders.keys()]
 
     await fs.ensureDir(this.storageLocation)
 
@@ -224,7 +226,6 @@ class Library {
   async close () {
     await Promise.all([...this.urls.keys()].map((url) => this.unloadURL(url)))
     await Promise.all([...this.folders.keys()].map((folder) => this.unloadFolder(folder)))
-
     await this.discovery.close()
   }
 }

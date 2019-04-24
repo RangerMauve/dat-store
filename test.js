@@ -52,6 +52,24 @@ test('Talk to server with client', async (t) => {
 
     t.equals(await client.getService(), LOCAL_SERVICE, 'Service set to default')
 
+    const provider = 'example'
+    const providerURL = 'example-service.com'
+
+    const providerClient = new StoreClient({
+      configLocation,
+      provider
+    })
+
+    t.pass('Create a client with provider name')
+
+    await providerClient.setService(providerURL)
+
+    t.pass('Set service with provider')
+
+    const persistedProviderURL = await providerClient.getService()
+
+    t.equals(persistedProviderURL, providerURL, 'Provider service persisted')
+
     const DAT_PROJECT_KEY = 'dat://60c525b5589a5099aa3610a8ee550dcd454c3e118f7ac93b7d41b6b850272330'
     const DAT_PROJECT_DOMAIN = 'dat://datproject.org'
 
@@ -89,29 +107,27 @@ test('Talk to server with client', async (t) => {
 
     t.equals(localURL, expectedKey, 'Local archive got loaded')
 
-    await client.remove(hyperdriveLocation)
+    await server.destroy()
 
-    t.pass('Removed archive')
+    t.pass('Destroyed server')
 
-    const provider = 'example'
-    const providerURL = 'example-service.com'
-
-    const providerClient = new StoreClient({
-      configLocation,
-      provider
+    const newServer = await StoreServer.createServer({
+      storageLocation,
+      verbose: false
     })
 
-    t.pass('Create a client with provider name')
+    t.pass('Able to load server up again')
 
-    await providerClient.setService(providerURL)
+    const { items: localItems2 } = await client.list()
+    const [{ url: localURL2 }] = localItems2
 
-    t.pass('Set service with provider')
+    t.equals(localURL2, expectedKey, 'Local archive got loaded')
 
-    const persistedProviderURL = await providerClient.getService()
+    await client.remove(hyperdriveLocation)
 
-    t.equals(persistedProviderURL, providerURL, 'Provider service persisted')
+    t.pass('Removed local archive')
 
-    await server.destroy()
+    await newServer.destroy()
 
     t.pass('Destroyed server')
 
