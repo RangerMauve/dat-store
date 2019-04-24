@@ -43,8 +43,6 @@ class StoreServer {
 
     await this.library.load()
 
-    await this.loadFolders()
-
     this.initRoutes()
 
     const handle = (conn) => this.dss.addClient(conn)
@@ -55,23 +53,6 @@ class StoreServer {
       port || DEFAULT_PORT,
       host || DEFAULT_HOST
     )
-  }
-
-  async loadFolders () {
-    const { dir } = this
-    const folderFileLocation = path.join(dir, 'folders.json')
-
-    try {
-      this.folders = await fs.readJSON(folderFileLocation)
-    } catch (e) {
-      this.folders = []
-    }
-
-    await Promise.all(this.folders.map((folder) => this.loadFolder(folder)))
-  }
-
-  async loadFolder (path) {
-
   }
 
   initRoutes () {

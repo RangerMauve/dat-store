@@ -201,6 +201,8 @@ class Library {
       // No folder file present
     }
 
+    if(!folders || !Array.isArray(folders)) return
+
     await Promise.all(folders.map((path) => {
       return this.loadFolder(path)
     }))
