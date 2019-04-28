@@ -123,9 +123,34 @@ test('Talk to server with client', async (t) => {
 
     t.equals(localURL2, expectedKey, 'Local archive got loaded')
 
+    const exampleFileName = 'example.txt'
+    const exampleFileLocation = path.join(hyperdriveLocation, exampleFileName)
+    const exampleFileData = "Hello World"
+
+    fs.writeFile(exampleFileLocation, exampleFileData)
+
+    // Wait for the archive to detect the write
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
     await client.remove(hyperdriveLocation)
 
     t.pass('Removed local archive')
+
+    const tmpArchive2 = new Hyperdrive(storage(path.join(hyperdriveLocation, '.dat')))
+
+    // Generate the metadata, then close
+    await new Promise((resolve) => tmpArchive2.ready(resolve))
+
+    const readExampleFileData = await new Promise((resolve, reject) => {
+      tmpArchive2.readFile(exampleFileName, 'utf8', (err, data) => {
+        if(err) reject(err)
+        else resolve(data)
+      })
+    })
+
+    t.equals(readExampleFileData, exampleFileData, 'Data synced from folder')
+
+    await new Promise((resolve) => tmpArchive2.close(resolve))
 
     await newServer.destroy()
 
