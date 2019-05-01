@@ -139,14 +139,20 @@ class Library {
     // If there's no `.dat` folder, don't try to watch for changes
     if (!hasDotDat) return archive
 
+    let fromLocation = folder
+    let toLocation = { name: '/', fs: archive }
+
     // If we can't write to the archive, don't try to watch changes
-    if (!archive.writable) return archive
+    if (!archive.writable) {
+      fromLocation = toLocation
+      toLocation = folder
+    }
 
     // Based on dat-node importer
     // https://github.com/datproject/dat-node/blob/master/lib/import-files.js#L9
     const ignore = datIgnore(folder)
 
-    const mirrorFolder = mirror(folder, { name: '/', fs: archive }, {
+    const mirrorFolder = mirror(fromLocation, toLocation, {
       watch: true,
       dereference: true,
       count: true,
