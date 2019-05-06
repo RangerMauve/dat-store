@@ -6,12 +6,15 @@ const DatEncoding = require('dat-encoding')
 const mirror = require('mirror-folder')
 const datIgnore = require('dat-ignore')
 const datDns = require('dat-dns')()
+const debounce = require('debounce')
+const pda = require('pauls-dat-api')
 
 const storage = require('./storage')
 
 const ERROR_NOT_FOUND_URL = (url) => `URL Not Found ${url}`
 const ERROR_NOT_FOUND_FOLDER = (path) => `Folder Not Found ${path}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
+const CHANGE_DEBUG = 1000
 
 module.exports =
 
@@ -85,7 +88,7 @@ class Library {
   async unloadArchive (archive) {
     this.unreplicate(archive)
 
-    if (archive.mirror) archive.mirror.destroy()
+    if (archive.destroyMirror) archive.destroyMirror()
 
     await awaitFN(archive, 'close')
   }
@@ -152,14 +155,36 @@ class Library {
     // https://github.com/datproject/dat-node/blob/master/lib/import-files.js#L9
     const ignore = datIgnore(folder)
 
-    const mirrorFolder = mirror(fromLocation, toLocation, {
-      watch: true,
+    let mirrorFolder = mirror(fromLocation, toLocation, {
+      watch: !!archive.writable,
       dereference: true,
       count: true,
       ignore
     })
 
-    archive.mirror = mirrorFolder
+    archive.destroyMirror = () => {
+      mirrorFolder.destroy()
+    }
+
+    if (!archive.writable) {
+      const events = pda.watch(archive)
+      const doMirror = debounce(() => {
+        mirrorFolder.destroy()
+        mirrorFolder = mirror(fromLocation, toLocation, {
+          watch: false,
+          dereference: true,
+          count: true,
+          ignore
+        })
+      }, CHANGE_DEBUG)
+
+      events.on('data', doMirror)
+
+      archive.destroyMirror = () => {
+        events.emit('close')
+        mirrorFolder.destroy()
+      }
+    }
 
     return archive
   }
@@ -209,7 +234,7 @@ class Library {
       // No folder file present
     }
 
-    if(!folders || !Array.isArray(folders)) return
+    if (!folders || !Array.isArray(folders)) return
 
     await Promise.all(folders.map((path) => {
       return this.addFolder(path)

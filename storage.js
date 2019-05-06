@@ -7,7 +7,7 @@ module.exports = (storage) => {
   return {
     metadata: function (name, opts) {
       // I don't think we want this, we may get multiple 'ogd' sources
-      if (name === 'secret_key') return secretStorage()(path.join(storage, 'metadata.ogd'), {key: opts.key, discoveryKey: opts.discoveryKey})
+      if (name === 'secret_key') return secretStorage()(path.join(storage, 'metadata.ogd'), { key: opts.key, discoveryKey: opts.discoveryKey })
       return raf(path.join(storage, 'metadata.' + name))
     },
     content: function (name, opts) {
