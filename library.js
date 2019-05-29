@@ -14,6 +14,7 @@ const storage = require('./storage')
 const ERROR_NOT_FOUND_URL = (url) => `URL Not Found ${url}`
 const ERROR_NOT_FOUND_FOLDER = (path) => `Folder Not Found ${path}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
+const ERROR_LOADING_DIRECTORY = (path, e) => `Could not load folder ${path}:${e.message}`
 const CHANGE_DEBUG = 1000
 
 module.exports =
@@ -236,8 +237,12 @@ class Library {
 
     if (!folders || !Array.isArray(folders)) return
 
-    await Promise.all(folders.map((path) => {
-      return this.addFolder(path)
+    await Promise.all(folders.map(async (path) => {
+      try {
+        await this.addFolder(path)
+      } catch(e) {
+        console.error(ERROR_LOADING_DIRECTORY(path, e))
+      }
     }))
   }
 
