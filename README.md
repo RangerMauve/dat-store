@@ -91,7 +91,7 @@ The store service is using the [data](https://github.com/sindresorhus/env-paths#
 
 Depending on where a store is located, there are different ways that it can handle folders.
 
-For local stores, you when you specify a folder, it'll behave similarly to the [dat share](https://github.com/datproject/dat#sharing-data) command, but instead of needing to have the command running all the time, it'll be handled by the store. The store will load up the dat archive inside your folder, watch for changes, and share them with the rest of the network.
+For local stores, you when you specify a folder, and you are able to write to it, it'll behave similarly to the [dat share](https://github.com/datproject/dat#sharing-data) command, but instead of needing to have the command running all the time, it'll be handled by the store. The store will load up the dat archive inside your folder, watch for changes, and share them with the rest of the network. If you aren't able to write to the archive, it will behave like the [dat clone](https://github.com/datproject/dat#download-demo) command and will sync changes from a remote dat to your local folder.
 
 For remote stores, it's a little different. Since a remote store is running on a different computer, it doesn't have a way to access your local folder. In that case, dat-store will find the Dat URL from inside the folder and will send it out to the store like it normally would.
 

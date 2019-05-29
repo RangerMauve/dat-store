@@ -125,7 +125,7 @@ test('Talk to server with client', async (t) => {
 
     const exampleFileName = 'example.txt'
     const exampleFileLocation = path.join(hyperdriveLocation, exampleFileName)
-    const exampleFileData = "Hello World"
+    const exampleFileData = 'Hello World'
 
     fs.writeFile(exampleFileLocation, exampleFileData)
 
@@ -143,7 +143,7 @@ test('Talk to server with client', async (t) => {
 
     const readExampleFileData = await new Promise((resolve, reject) => {
       tmpArchive2.readFile(exampleFileName, 'utf8', (err, data) => {
-        if(err) reject(err)
+        if (err) reject(err)
         else resolve(data)
       })
     })

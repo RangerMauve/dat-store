@@ -3,8 +3,6 @@ const pda = require('pauls-dat-api')
 const DSS = require('discovery-swarm-stream/server')
 const DAT_SWARM_DEFAULTS = require('dat-swarm-defaults')
 const envPaths = require('env-paths')
-const fs = require('fs-extra')
-const path = require('path')
 
 const Library = require('./library')
 

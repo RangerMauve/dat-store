@@ -6,12 +6,16 @@ const DatEncoding = require('dat-encoding')
 const mirror = require('mirror-folder')
 const datIgnore = require('dat-ignore')
 const datDns = require('dat-dns')()
+const debounce = require('debounce')
+const pda = require('pauls-dat-api')
 
 const storage = require('./storage')
 
 const ERROR_NOT_FOUND_URL = (url) => `URL Not Found ${url}`
 const ERROR_NOT_FOUND_FOLDER = (path) => `Folder Not Found ${path}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
+const ERROR_LOADING_DIRECTORY = (path, e) => `Could not load folder ${path}:${e.message}`
+const CHANGE_DEBUG = 1000
 
 module.exports =
 
@@ -85,7 +89,7 @@ class Library {
   async unloadArchive (archive) {
     this.unreplicate(archive)
 
-    if (archive.mirror) archive.mirror.destroy()
+    if (archive.destroyMirror) archive.destroyMirror()
 
     await awaitFN(archive, 'close')
   }
@@ -139,21 +143,49 @@ class Library {
     // If there's no `.dat` folder, don't try to watch for changes
     if (!hasDotDat) return archive
 
+    let fromLocation = folder
+    let toLocation = { name: '/', fs: archive }
+
     // If we can't write to the archive, don't try to watch changes
-    if (!archive.writable) return archive
+    if (!archive.writable) {
+      fromLocation = toLocation
+      toLocation = folder
+    }
 
     // Based on dat-node importer
     // https://github.com/datproject/dat-node/blob/master/lib/import-files.js#L9
     const ignore = datIgnore(folder)
 
-    const mirrorFolder = mirror(folder, { name: '/', fs: archive }, {
-      watch: true,
+    let mirrorFolder = mirror(fromLocation, toLocation, {
+      watch: !!archive.writable,
       dereference: true,
       count: true,
       ignore
     })
 
-    archive.mirror = mirrorFolder
+    archive.destroyMirror = () => {
+      mirrorFolder.destroy()
+    }
+
+    if (!archive.writable) {
+      const events = pda.watch(archive)
+      const doMirror = debounce(() => {
+        mirrorFolder.destroy()
+        mirrorFolder = mirror(fromLocation, toLocation, {
+          watch: false,
+          dereference: true,
+          count: true,
+          ignore
+        })
+      }, CHANGE_DEBUG)
+
+      events.on('data', doMirror)
+
+      archive.destroyMirror = () => {
+        events.emit('close')
+        mirrorFolder.destroy()
+      }
+    }
 
     return archive
   }
@@ -203,10 +235,14 @@ class Library {
       // No folder file present
     }
 
-    if(!folders || !Array.isArray(folders)) return
+    if (!folders || !Array.isArray(folders)) return
 
-    await Promise.all(folders.map((path) => {
-      return this.addFolder(path)
+    await Promise.all(folders.map(async (path) => {
+      try {
+        await this.addFolder(path)
+      } catch (e) {
+        console.error(ERROR_LOADING_DIRECTORY(path, e))
+      }
     }))
   }
 
