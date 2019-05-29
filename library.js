@@ -240,7 +240,7 @@ class Library {
     await Promise.all(folders.map(async (path) => {
       try {
         await this.addFolder(path)
-      } catch(e) {
+      } catch (e) {
         console.error(ERROR_LOADING_DIRECTORY(path, e))
       }
     }))
