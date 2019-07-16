@@ -108,7 +108,7 @@ Description=Dat storage provider, keeps dats alive in the background.
 Type=simple
 # Check that dat-store is present at this location
 # If it's not, replace the path with it's location
-ExecStart=/usr/bin/dat-store run-service --port 3473
+ExecStart=/usr/bin/dat-store run-service
 Restart=always
 
 [Install]
