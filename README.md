@@ -13,9 +13,6 @@ dat-store run-service
 # Add a dat to the dat-store so it's always being shared
 dat-store dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
 
-# Install local
-dat-store install-service
-
 # Configure external storage provider
 dat-store set-provider hashbase https://hashbase.io/
 dat-store login hashbase yourusername
@@ -96,3 +93,33 @@ For local stores, you when you specify a folder, and you are able to write to it
 For remote stores, it's a little different. Since a remote store is running on a different computer, it doesn't have a way to access your local folder. In that case, dat-store will find the Dat URL from inside the folder and will send it out to the store like it normally would.
 
 These two modes of operation can be combined together. When you create a dat, add it to your local store. Then add the URL to the remote store. This way, when you make a change to the folder, the local store will update the Dat, and the remote store will get the change and spread it to the rest of the network.
+
+## How do I make it run in the background?
+
+### Linux (System D)
+
+```bash
+# This will create the service file
+sudo cat << EOF > /etc/systemd/system/dat-store.service
+[Unit]
+Description=Dat storage provider, keeps dats alive in the background.
+
+[Service]
+Type=simple
+# Check that dat-store is present at this location
+# If it's not, replace the path with it's location
+ExecStart=/usr/bin/dat-store run-service --port 3473
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo chmod 644 /etc/systemd/system/dat-store.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable dat-store
+sudo systemctl start dat-store
+
+sudo systemctl status dat-store
+```
