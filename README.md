@@ -123,3 +123,15 @@ sudo systemctl start dat-store
 
 sudo systemctl status dat-store
 ```
+
+### Windows (NSSM)
+
+- Download [NSSM](http://nssm.cc/usage)
+- Run the GUI with `nssm install dat-store`
+- For the `Path` option, navigate to `%USERPROFILE%\AppData\Roaming\npm` and click on `dat-store.bat`
+- Set the arguments to `run-service`
+- In the `Login` section, have it log in as your account. This is needed so it can have write access to your folders.
+- Set the log location for STDOUT and STDERR so you can debug stuff
+- Enjoy!
+
+To uninstall it, run `nssm remove "dat-store"`
