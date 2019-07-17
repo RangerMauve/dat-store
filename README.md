@@ -124,6 +124,146 @@ sudo systemctl start dat-store
 sudo systemctl status dat-store
 ```
 
+### Linux (init.d)
+
+```bash
+sudo cat << EOF > /etc/init.d/dat-store
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          dat-store
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start dat-store at boot time
+# Description:       Keep dat archives online and synced to folders.
+### END INIT INFO
+
+# chkconfig:   2345 99 1
+# description: dat-store
+
+umask 0007
+
+set_pid () {
+	unset PID
+	_PID=`head -1 "/usr/bin/dat-store.pid" 2>/dev/null`
+	if [ $_PID ]; then
+		kill -0 $_PID 2>/dev/null && PID=$_PID
+	fi
+}
+
+force_reload () {
+	stop
+	start
+}
+
+restart () {
+	stop
+	start
+}
+
+start () {
+	CNT=5
+
+	set_pid
+
+	if [ -z "$PID" ]; then
+		echo starting dat-store
+
+		/usr/bin/dat-store run-service >/dev/null 2>&1 &
+
+		echo $! > "/usr/bin/dat-store.pid"
+
+		while [ : ]; do
+			set_pid
+
+			if [ -n "$PID" ]; then
+				echo started dat-store
+				break
+			else
+				if [ $CNT -gt 0 ]; then
+					sleep 1
+					CNT=`expr $CNT - 1`
+				else
+					echo ERROR - failed to start dat-store
+					break
+				fi
+			fi
+		done
+	else
+		echo dat-store is already started
+	fi
+}
+
+status () {
+	set_pid
+
+	if [ -z "$PID" ]; then
+		exit 1
+	else
+		exit 0
+	fi
+}
+
+stop () {
+	CNT=5
+
+	set_pid
+
+	if [ -n "$PID" ]; then
+		echo stopping dat-store
+
+		kill $PID
+
+		while [ : ]; do
+			set_pid
+
+			if [ -z "$PID" ]; then
+				rm "/usr/bin/dat-store.pid"
+				echo stopped dat-store
+				break
+			else
+				if [ $CNT -gt 0 ]; then
+					sleep 1
+					CNT=`expr $CNT - 1`
+				else
+					echo ERROR - failed to stop dat-store
+					break
+				fi
+			fi
+		done
+	else
+		echo dat-store is already stopped
+	fi
+}
+
+case $1 in
+	force-reload)
+		force_reload
+		;;
+	restart)
+		restart
+		;;
+	start)
+		start
+		;;
+	status)
+		status
+		;;
+	stop)
+		stop
+		;;
+	*)
+		echo "usage: $0 <force-reload|restart|start|status|stop>"
+		exit 1
+		;;
+esac
+EOF
+
+sudo chmod +x /etc/init.d/dat-store
+
+sudo update-rc.d dat-store defaults 100
+```
+
 ### Windows (NSSM)
 
 - Download [NSSM](http://nssm.cc/usage)
