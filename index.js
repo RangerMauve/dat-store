@@ -65,8 +65,12 @@ async function add (args) {
 async function list (args) {
   const { items } = await getClient(args).list()
 
-  for (let { url } of items) {
-    console.log(url)
+  for (let { url, name, title } of items) {
+    let line = url
+    if(name || title) {
+      line = `${url} - ${name || title}`
+    }
+    console.log(line)
   }
 }
 
