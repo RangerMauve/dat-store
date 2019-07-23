@@ -33,13 +33,13 @@ const noOptions = () => void 0
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
-  .command(['add [provider] <url|path>', '$0 [provider] <url>'], 'Add a Dat to your storage provider.', addServiceOptions, add)
-  .command('remove [provider] <url|path>', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
+  .command(['add <url|path> [provider]', '$0 <url> [provider]'], 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('remove <url|path> [provider]', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
   .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
-  .command('set-provider [provider] <url>', 'Set the URL of your storage provider.', addServiceOptions, setService)
+  .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addServiceOptions, setService)
   .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)
-  .command('unset-provider', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
-  .command('login <username> [password]', 'Logs you into your storage provider.', addServiceOptions, login)
+  .command('unset-provider [provider]', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
+  .command('login <username> [provider] [password]', 'Logs you into your storage provider.', addServiceOptions, login)
   .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
   .command('run-service', 'Runs a local storage provider.', addClientOptions, runService)
   .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', addClientOptions, installService)

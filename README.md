@@ -14,39 +14,42 @@ dat-store run-service
 dat-store dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
 
 # Configure external storage provider
-dat-store set-provider hashbase https://hashbase.io/
-dat-store login hashbase yourusername
-dat-store add hashbase dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
+dat-store set-provider https://hashbase.io/ hashbase
+dat-store login yourusername hashbase
+dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/ hashbase
 ```
 
 ## Commands
 
 ```
-dat-store [provider] <url>
+dat-store <url|path> [provider]
 
 Add a Dat to your storage provider.
 
 Commands:
-  dat-store add [provider] <url>           Add a Dat to your storage provider.
+  dat-store add <url|path> [provider]       Add a Dat to your storage provider.
                                                                        [default]
-  dat-store remove [provider] <url>        Remove a Dat from your storage
-                                           provider.
-  dat-store list [provider]                List the Dats in your storage
-                                           provider.
-  dat-store set-provider [provider] <url>  Set the URL of your storage provider.
-  dat-store get-provider [provider]        Get the URL of your storage provider.
-  dat-store unset-provider                 Reset your storage provider to the
-                                           default: http://localhost:3472
-  dat-store login <username> [password]    Logs you into your storage provider.
-  dat-store logout                         Logs you out of your storage
-                                           provider.
-  dat-store run-service                    Runs a local storage provider.
-  dat-store install-service                Installs a storage service on your
-                                           machine. This will run in the
-                                           background while your computer is
-                                           active.
-  dat-store uninstall-service              Uninstalls your local storage
-                                           service.
+  dat-store remove <url|path> [provider]    Remove a Dat from your storage
+                                            provider.
+  dat-store list [provider]                 List the Dats in your storage
+                                            provider.
+  dat-store set-provider <url> [provider]   Set the URL of your storage
+                                            provider.
+  dat-store get-provider [provider]         Get the URL of your storage
+                                            provider.
+  dat-store unset-provider [provider]       Reset your storage provider to the
+                                            default: http://localhost:3472
+  dat-store login <username> [provider]     Logs you into your storage provider.
+  [password]
+  dat-store logout                          Logs you out of your storage
+                                            provider.
+  dat-store run-service                     Runs a local storage provider.
+  dat-store install-service                 Installs a storage service on your
+                                            machine. This will run in the
+                                            background while your computer is
+                                            active.
+  dat-store uninstall-service               Uninstalls your local storage
+                                            service.
 
 Options:
   --version           Show version number                              [boolean]
