@@ -125,7 +125,7 @@ class Library {
 
     if (hasDotDat) {
       const stat = await fs.stat(dotDatLocation)
-      opts.latest = stat.isDirectory()
+      opts.latest = this.latest || stat.isDirectory()
     }
 
     const archive = this.Hyperdrive(folder, opts)
@@ -159,7 +159,7 @@ class Library {
       }
 
       // Mirror from the folder files to the archive
-      await syncFolder()
+      syncFolder()
 
       archive.destroyMirror = watch(folder, syncFolder)
     } else {
@@ -177,7 +177,7 @@ class Library {
       }
 
       // Mirror from the archive to the folder
-      await syncFolder()
+      syncFolder()
 
       // watch for changes in the archive
       const events = pda.watch(archive)
