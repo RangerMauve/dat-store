@@ -58,6 +58,7 @@ const commands = yargs
   .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
   .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addServiceOptions, setService)
   .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)
+  .command('list-providers', 'Get the list of providers and their names', noOptions, getProviders)
   .command('unset-provider [provider]', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
   .command('login <username> [provider] [password]', 'Logs you into your storage provider.', addServiceOptions, login)
   .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
@@ -162,4 +163,18 @@ async function uninstallService (args) {
 
 function migrate () {
   require('./migrate')()
+}
+
+async function getProviders(args) {
+  const client = await getClient(args)
+
+  const service = await client.getService()
+
+  console.log('[default]', '-', service)
+
+  const providers = await client.getProviders()
+
+  for(let name of Object.keys(providers)) {
+    console.log(name, '-', providers[name])
+  }
 }
