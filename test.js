@@ -71,7 +71,7 @@ test('Talk to server with client', async (t) => {
     t.equals(persistedProviderURL, providerURL, 'Provider service persisted')
 
     const DAT_PROJECT_KEY = 'dat://60c525b5589a5099aa3610a8ee550dcd454c3e118f7ac93b7d41b6b850272330'
-    const DAT_PROJECT_DOMAIN = 'dat://datproject.org'
+    const DAT_PROJECT_DOMAIN = 'dat://dat.foundation'
 
     await client.add(DAT_PROJECT_DOMAIN)
 
@@ -127,10 +127,10 @@ test('Talk to server with client', async (t) => {
     const exampleFileLocation = path.join(hyperdriveLocation, exampleFileName)
     const exampleFileData = 'Hello World'
 
-    fs.writeFile(exampleFileLocation, exampleFileData)
+    await fs.writeFile(exampleFileLocation, exampleFileData)
 
     // Wait for the archive to detect the write
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     await client.remove(hyperdriveLocation)
 
