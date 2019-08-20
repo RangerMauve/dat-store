@@ -147,15 +147,19 @@ class Library {
 
     if (archive.writable) {
       const syncFolder = async () => {
+        try {
         // Try reading the .datignore file
-        const datignoreData = await fs.readFile(path.join(folder, '.datignore'), 'utf8').catch(() => '')
-        const ignore = datignore.toAnymatchRules(datignoreData)
+          const datignoreData = await fs.readFile(path.join(folder, '.datignore'), 'utf8').catch(() => '')
+          const ignore = datignore.toAnymatchRules(datignoreData)
 
-        await pda.exportFilesystemToArchive({
-          srcPath: folder,
-          dstArchive: archive,
-          ignore
-        })
+          await pda.exportFilesystemToArchive({
+            srcPath: folder,
+            dstArchive: archive,
+            ignore
+          })
+        } catch (e) {
+        // Whatever
+        }
       }
 
       // Mirror from the folder files to the archive
@@ -164,16 +168,20 @@ class Library {
       archive.destroyMirror = watch(folder, syncFolder)
     } else {
       const syncFolder = async () => {
+        try {
         // Try reading the .datignore file
-        const datignoreData = await pda.readFile(archive, '.datignore', 'utf8').catch(() => '')
-        const ignore = datignore.toAnymatchRules(datignoreData)
+          const datignoreData = await pda.readFile(archive, '.datignore', 'utf8').catch(() => '')
+          const ignore = datignore.toAnymatchRules(datignoreData)
 
-        await pda.exportArchiveToFilesystem({
-          srcArchive: archive,
-          dstPath: folder,
-          overwriteExisting: true,
-          ignore
-        })
+          await pda.exportArchiveToFilesystem({
+            srcArchive: archive,
+            dstPath: folder,
+            overwriteExisting: true,
+            ignore
+          })
+        } catch (e) {
+        // Whatever
+        }
       }
 
       // Mirror from the archive to the folder

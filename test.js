@@ -145,7 +145,7 @@ test('Talk to server with client', async (t) => {
     await fs.writeFile(exampleFileLocation, exampleFileData)
 
     // Wait for the archive to detect the write
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     await client.remove(hyperdriveLocation)
 

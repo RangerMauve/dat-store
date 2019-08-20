@@ -160,6 +160,6 @@ async function uninstallService (args) {
   })
 }
 
-function migrate() {
+function migrate () {
   require('./migrate')()
 }
