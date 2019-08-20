@@ -28,6 +28,26 @@ const argv = yargs
     default: false,
     type: 'boolean'
   })
+  .option('allow-cors', {
+    describe: 'Allow CORS requests so any website can talk to the store',
+    default: false,
+    type: 'boolean'
+  })
+  .option('expose-to-internet', {
+    describe: 'Allow connections from the internet, not just the localhost',
+    default: false,
+    type: 'boolean'
+  })
+  .option('authentication-username', {
+    describe: 'Require users to use Basic Auth with this username to connect',
+    default: '',
+    type: 'string'
+  })
+  .option('authentication-password', {
+    describe: 'Require users to use Basic Auth with this password to connect',
+    default: '',
+    type: 'password'
+  })
   .argv
 
 const service = require('os-service')

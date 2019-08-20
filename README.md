@@ -4,6 +4,8 @@ dat-store aims to solve the question of "How do I make sure my Dat is being shar
 
 It can be used as an extension for the Dat CLI to add your Dats to "stores" that will keep a copy of your content and keep it online.
 
+**Note: dat-store uses features from node 10.10.0 so please make sure your version is higher than that.**
+
 ```shell
 npm install -g dat-store
 
@@ -110,7 +112,7 @@ Description=Dat storage provider, keeps dats alive in the background.
 [Service]
 Type=simple
 # Check that dat-store is present at this location
-# If it's not, replace the path with it's location
+# If it's not, replace the path with its location
 ExecStart=/usr/bin/dat-store run-service
 Restart=always
 
