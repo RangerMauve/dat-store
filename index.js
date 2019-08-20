@@ -67,7 +67,7 @@ async function list (args) {
 
   for (let { url, name, title } of items) {
     let line = url
-    if(name || title) {
+    if (name || title) {
       line = `${url} - ${name || title}`
     }
     console.log(line)
