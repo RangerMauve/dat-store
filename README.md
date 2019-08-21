@@ -32,7 +32,9 @@ dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba
 - The service acts as a discovery gateway for [discovery-swarm-stream](https://www.npmjs.com/package/discovery-swarm-stream)
 - Can work with multiple providers at the same time
 
-## Where is stuff stored?
+## FAQ
+
+### Where is stuff stored?
 
 This project makes use of the [env-paths](https://github.com/sindresorhus/env-paths#pathsconfig) module to determine the best place to store data based on the platform.
 
@@ -40,13 +42,13 @@ The config file is stored using the [conf](https://github.com/sindresorhus/conf)
 
 The store service is using the [data](https://github.com/sindresorhus/env-paths#pathsdata) directory, also with the name `dat-store`. You can override the folder the data will be stored at using the `--storage-location` flag. You can configure whether the store keeps track of just the latest changes, or the full history with the `--latest` flag. By default, it will store the entire history.
 
-## How do I deal with multiple stores?
+### How do I deal with multiple stores?
 
 `dat-store` supports multiple remote stores using the optional `provider` CLI argument. Whenever you `add` `remove` or `list`, you can specify a provider argument to tell the CLI which store it should be talking to. Think of providers as being similar to [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes). You can add a provider with the `dat-store set-provider http://example.com/ PROVIDER_NAME_HERE` command.
 
 You can list your currently configured providers with `dat-store list-providers`.
 
-## How do I add a folder?
+### How do I add a folder?
 
 Depending on where a store is located, there are different ways that it can handle folders.
 
@@ -56,11 +58,11 @@ For remote stores, it's a little different. Since a remote store is running on a
 
 These two modes of operation can be combined together. When you create a dat, add it to your local store. Then add the URL to the remote store. This way, when you make a change to the folder, the local store will update the Dat, and the remote store will get the change and spread it to the rest of the network.
 
-## How do I secure my store?
+### How do I secure my store?
 
 You can require authentication for your dat-store by specifying the `--authorization-username` and `--authorization-password` flags when you run the service.
 
-## How do I expose my store to the internet?
+### How do I expose my store to the internet?
 
 By default `dat-store run-service` will only listen on local connections.
 
@@ -70,9 +72,9 @@ You should probably combine this with the authorization flags so that random peo
 
 You should also consider putting your store behind NGINX with a letsecrypt certificate so that "Man In the Middle" attacks can't steal your login credentials or dat URLs.
 
-## How do I make it run in the background?
+### How do I make it run in the background?
 
-### Linux (System D)
+#### Linux (SystemD)
 
 ```bash
 # This will create the service file
@@ -100,7 +102,7 @@ sudo systemctl start dat-store
 sudo systemctl status dat-store
 ```
 
-### Windows (NSSM)
+#### Windows (NSSM)
 
 - Download [NSSM](http://nssm.cc/usage)
 - Run the GUI with `nssm install dat-store`
@@ -170,3 +172,7 @@ Options:
   --authentication-password  Require users to use Basic Auth with this password
                              to connect                            [default: ""]
 ```
+
+## Migrating from 3.0.0 to 4.0.0
+
+If you were already using dat-store@3.0.0 or lower (for storing data), run `dat-store migrate` to have it transfer your data over. After that you should be able to use `dat-store list` to check that all your archives got migrated. If you have an problems, please open an issue with any stack traces you might have.

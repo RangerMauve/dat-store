@@ -86,7 +86,6 @@ class StoreServer {
 
   checkAuth(request) {
     const expectedAuth = this.authenticationUsername+this.authenticationPassword
-
     if(expectedAuth) {
       const authHeader = request.headers.authorization
       const gotAuth = authHeader.slice('Bearer '.length)
