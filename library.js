@@ -5,6 +5,8 @@ const pda = require('pauls-dat-api')
 const { promisify } = require('util')
 const watch = require('recursive-watch')
 const datignore = require('@beaker/datignore')
+const anymatch = require('anymatch')
+const dft = require('diff-file-tree')
 
 const SDK = require('dat-sdk')
 
@@ -151,6 +153,16 @@ class Library {
         // Try reading the .datignore file
           const datignoreData = await fs.readFile(path.join(folder, '.datignore'), 'utf8').catch(() => '')
           const ignore = datignore.toAnymatchRules(datignoreData)
+          const filter = anymatch(ignore)
+
+          const source = folder
+          const dest = {fs: archive, path: '/'}
+
+          const diff = await dft.diff(source, dest, {
+            filter
+          })
+
+          await dft.applyRight(source, dest)
 
           await pda.exportFilesystemToArchive({
             srcPath: folder,
@@ -172,11 +184,20 @@ class Library {
         // Try reading the .datignore file
           const datignoreData = await pda.readFile(archive, '.datignore', 'utf8').catch(() => '')
           const ignore = datignore.toAnymatchRules(datignoreData)
+          const filter = anymatch(ignore)
 
-          await pda.exportArchiveToFilesystem({
-            srcArchive: archive,
-            dstPath: folder,
-            overwriteExisting: true,
+          const source = {fs: archive, path: '/'}
+          const dest = folder
+
+          const diff = await dft.diff(source, dest, {
+            filter
+          })
+
+          await dft.applyRight(source, dest)
+
+          await pda.exportFilesystemToArchive({
+            srcPath: folder,
+            dstArchive: archive,
             ignore
           })
         } catch (e) {

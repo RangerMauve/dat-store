@@ -27,6 +27,7 @@
   "homepage": "https://github.com/datproject/dat-store#readme",
   "dependencies": {
     "@beaker/datignore": "^1.0.0",
+    "anymatch": "^3.0.3",
     "conf": "^4.0.1",
     "dat-dns": "^3.2.1",
     "dat-encoding": "^5.0.1",
@@ -36,6 +37,7 @@
     "dat-swarm-defaults": "^1.0.2",
     "debounce": "^1.2.0",
     "debug": "^4.1.1",
+    "diff-file-tree": "^2.3.2",
     "discovery-swarm-stream": "^1.1.5",
     "env-paths": "^2.2.0",
     "fastify": "^2.1.0",
