@@ -3,14 +3,17 @@ const pda = require('pauls-dat-api')
 const DSS = require('discovery-swarm-stream/server')
 const DAT_SWARM_DEFAULTS = require('dat-swarm-defaults')
 const envPaths = require('env-paths')
+const tsse = require('tsse')
 
 const Library = require('./library')
 
 const DEFAULT_STORAGE_LOCATION = envPaths('dat-store').data
 const DEFAULT_PORT = 3472
-const DEFAULT_HOST = '::'
+const DEFAULT_HOST = 'localhost'
+const DEFAULT_ANY_HOST = '::'
 
 const ERROR_NOT_LOCAL = (path, ip) => `Cannot Add File Path From Remote IP ${path}, ${ip}`
+const ERROR_INVALID_CREDENTIALS = 'Please supply valid username and password credentials'
 
 module.exports =
 
@@ -23,7 +26,18 @@ class StoreServer {
     return server
   }
 
-  async init ({ port, host, storageLocation, verbose = true, datPort = 3282, latest = false }) {
+  async init ({
+    port,
+    host,
+    storageLocation,
+    verbose = true,
+    datPort = 3282,
+    latest = false,
+    allowCors = false,
+    exposeToInternet = false,
+    authenticationUsername = '',
+    authenticationPassword = ''
+  }) {
     storageLocation = storageLocation || DEFAULT_STORAGE_LOCATION
 
     this.library = new Library({
@@ -32,7 +46,23 @@ class StoreServer {
 
     this.dir = storageLocation
 
+    this.authenticationUsername = authenticationUsername
+    this.authenticationPassword = authenticationPassword
+
     this.fastify = createFastify({ logger: verbose })
+
+    // Enable websites to make requests to the store from any origin
+    if (allowCors) {
+      this.fastify.register(require('fastify-cors'), {
+        origin: '*',
+        methods: ['GET', 'PUT', 'POST']
+      })
+    }
+
+    // Listen on _all_ network interfaces
+    if (exposeToInternet) {
+      host = DEFAULT_ANY_HOST
+    }
 
     const swarmOpts = DAT_SWARM_DEFAULTS({
       hash: false
@@ -54,6 +84,17 @@ class StoreServer {
     )
   }
 
+  checkAuth(request) {
+    const expectedAuth = this.authenticationUsername+this.authenticationPassword
+    if(expectedAuth) {
+      const authHeader = request.headers.authorization
+      const gotAuth = authHeader.slice('Bearer '.length)
+      if(!tsse(gotAuth, expectedAuth)) {
+        throw new Error(ERROR_INVALID_CREDENTIALS)
+      }
+    }
+  }
+
   initRoutes () {
     this.fastify.get('/.well-known/psa', async () => {
       return {
@@ -72,9 +113,18 @@ class StoreServer {
       }
     })
 
-    this.fastify.post('/v1/accounts/login', async () => {
+    this.fastify.post('/v1/accounts/login', async ({body={}}) => {
+      if(this.authenticationPassword && !tsse(body.password || '', this.authenticationPassword)) {
+        throw new Error(ERROR_INVALID_CREDENTIALS)
+      }
+      if(this.authenticationUsername && !tsse(body.username || '', this.authenticationUsername)) {
+        throw new Error(ERROR_INVALID_CREDENTIALS)
+      }
+
+      const sessionToken = this.authenticationUsername+this.authenticationPassword
+
       return {
-        sessionToken: 'null'
+        sessionToken
       }
     })
 
@@ -88,7 +138,9 @@ class StoreServer {
       }
     })
 
-    this.fastify.get('/v1/dats/', async () => {
+    this.fastify.get('/v1/dats/', async (request) => {
+      this.checkAuth(request)
+
       const keys = await this.library.list()
 
       const items = []
@@ -104,7 +156,11 @@ class StoreServer {
       }
     })
 
-    this.fastify.post('/v1/dats/add', async ({ body, ip }) => {
+    this.fastify.post('/v1/dats/add', async (request) => {
+      this.checkAuth(request)
+
+      const { body, ip } = request
+
       const { url } = body
 
       if (url.startsWith('dat://')) {
@@ -116,7 +172,11 @@ class StoreServer {
       return {}
     })
 
-    this.fastify.post('/v1/dats/remove', async ({ body, ip }) => {
+    this.fastify.post('/v1/dats/remove', async (request) => {
+      this.checkAuth(request)
+
+      const { body, ip } = request
+
       try {
         const { url } = body
 
@@ -131,13 +191,18 @@ class StoreServer {
       return {}
     })
 
-    this.fastify.get('/v1/dats/item/:key', async ({ params }) => {
+    this.fastify.get('/v1/dats/item/:key', async (request) => {
+      this.checkAuth(request)
+
+      const { params } = request
       const { key } = params
 
       return this.getMetadata(key)
     })
 
-    this.fastify.post('/v1/dats/item/:key', async () => {
+    this.fastify.post('/v1/dats/item/:key', async (request) => {
+      this.checkAuth(request)
+
       return {}
     })
   }

@@ -19,7 +19,7 @@ const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
 module.exports =
 
 class StoreClient {
-  constructor ({ configLocation, provider }) {
+  constructor ({ configLocation, provider, localService }) {
     const options = {
       projectName: 'dat-store'
     }
@@ -29,6 +29,8 @@ class StoreClient {
     if (configLocation) {
       options.cwd = configLocation
     }
+
+    this.localService = localService || LOCAL_SERVICE
 
     this.config = new Conf(options)
   }
@@ -56,19 +58,19 @@ class StoreClient {
       // Probably a folder path
       const cwd = process.cwd()
       const fullPath = path.resolve(cwd, url)
-      const keyLocation = path.resolve(fullPath, './.dat/metadata.key')
+      const keyLocation = path.resolve(fullPath, './.dat')
 
       try {
         const key = await fs.readFile(keyLocation)
-        if (service === LOCAL_SERVICE) {
+        if (service === this.localService) {
           return fullPath
         }
         return `dat://` + DatEncoding.encode(key)
       } catch (e) {
         try {
-          const rawLocation = path.resolve(fullPath, './metadata.key')
+          const rawLocation = path.resolve(fullPath, './.dat/metadata.key')
           const key = await fs.readFile(rawLocation)
-          if (service === LOCAL_SERVICE) {
+          if (service === this.localService) {
             return fullPath
           }
           return `dat://` + DatEncoding.encode(key)
@@ -107,7 +109,7 @@ class StoreClient {
     if (this.provider) {
       return this.getProviderURL(this.provider)
     } else {
-      return this.getConfig('service', LOCAL_SERVICE)
+      return this.getConfig('service', this.localService)
     }
   }
 
@@ -120,15 +122,28 @@ class StoreClient {
   }
 
   async unsetService () {
-    await this.setService(LOCAL_SERVICE)
+    await this.setService(this.localService)
   }
 
   async getToken () {
-    return this.getConfig('token', null)
+    if(this.provider) {
+      const tokens = await this.getConfig('tokens', {})
+      return tokens[this.provider]
+    } else {
+      return this.getConfig('token', null)
+    }
   }
 
   async setToken (token) {
-    await this.setConfig('token', token)
+    if(this.provider) {
+      const tokens = await this.getConfig('tokens', {})
+      const newTokens = Object.assign({}, tokens, {
+        [this.provider]: token
+      })
+      await this.setConfig('tokens', newTokens)
+    } else {
+      await this.setConfig('token', token)
+    }
   }
 
   async init () {

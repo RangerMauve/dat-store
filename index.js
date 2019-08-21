@@ -27,6 +27,26 @@ const addServiceOptions = (yargs) => yargs
     default: false,
     type: 'boolean'
   })
+  .option('allow-cors', {
+    describe: 'Allow CORS requests so any website can talk to the store',
+    default: false,
+    type: 'boolean'
+  })
+  .option('expose-to-internet', {
+    describe: 'Allow connections from the internet, not just the localhost',
+    default: false,
+    type: 'boolean'
+  })
+  .option('authentication-username', {
+    describe: 'Require users to use Basic Auth with this username to connect',
+    default: '',
+    type: 'string'
+  })
+  .option('authentication-password', {
+    describe: 'Require users to use Basic Auth with this password to connect',
+    default: '',
+    type: 'password'
+  })
 const addClientOptions = (yargs) => yargs
   .option('config-location')
 const noOptions = () => void 0
@@ -38,12 +58,14 @@ const commands = yargs
   .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
   .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addServiceOptions, setService)
   .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)
+  .command('list-providers', 'Get the list of providers and their names', noOptions, getProviders)
   .command('unset-provider [provider]', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
   .command('login <username> [provider] [password]', 'Logs you into your storage provider.', addServiceOptions, login)
   .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
   .command('run-service', 'Runs a local storage provider.', addClientOptions, runService)
   .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', addClientOptions, installService)
   .command('uninstall-service', 'Uninstalls your local storage service.', noOptions, uninstallService)
+  .command('migrate', 'Migrates old dat-store data to new format', noOptions, migrate)
   .help()
 
 module.exports = (argv) => {
@@ -67,7 +89,7 @@ async function list (args) {
 
   for (let { url, name, title } of items) {
     let line = url
-    if(name || title) {
+    if (name || title) {
       line = `${url} - ${name || title}`
     }
     console.log(line)
@@ -137,4 +159,22 @@ async function uninstallService (args) {
   service.remove(SERVICE_NAME, (e) => {
     if (e) throw e
   })
+}
+
+function migrate () {
+  require('./migrate')()
+}
+
+async function getProviders(args) {
+  const client = await getClient(args)
+
+  const service = await client.getService()
+
+  console.log('[default]', '-', service)
+
+  const providers = await client.getProviders()
+
+  for(let name of Object.keys(providers)) {
+    console.log(name, '-', providers[name])
+  }
 }
