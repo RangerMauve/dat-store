@@ -21,55 +21,10 @@ dat-store login yourusername hashbase
 dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/ hashbase
 ```
 
-## Commands
-
-```
-dat-store <url|path> [provider]
-
-Add a Dat to your storage provider.
-
-Commands:
-  dat-store add <url|path> [provider]       Add a Dat to your storage provider.
-                                                                       [default]
-  dat-store remove <url|path> [provider]    Remove a Dat from your storage
-                                            provider.
-  dat-store list [provider]                 List the Dats in your storage
-                                            provider.
-  dat-store set-provider <url> [provider]   Set the URL of your storage
-                                            provider.
-  dat-store get-provider [provider]         Get the URL of your storage
-                                            provider.
-  dat-store unset-provider [provider]       Reset your storage provider to the
-                                            default: http://localhost:3472
-  dat-store login <username> [provider]     Logs you into your storage provider.
-  [password]
-  dat-store logout                          Logs you out of your storage
-                                            provider.
-  dat-store run-service                     Runs a local storage provider.
-  dat-store install-service                 Installs a storage service on your
-                                            machine. This will run in the
-                                            background while your computer is
-                                            active.
-  dat-store uninstall-service               Uninstalls your local storage
-                                            service.
-
-Options:
-  --version           Show version number                              [boolean]
-  --help              Show help                                        [boolean]
-  --storage-location  The folder to store dats in
-  --port              The port to use for the HTTP API           [default: 3472]
-  --host              The hostname to make the HTTP server listen on
-  --verbose           Whether the HTTP server should output logs
-                                                       [boolean] [default: true]
-  --dat-port          The port to listen for P2P connections on  [default: 3282]
-  --latest            Whether to download just the latest changes
-                                                      [boolean] [default: false]
-```
-
 ## How it works:
 
 - Uses [dat-pinning-service-client](https://github.com/beakerbrowser/dat-pinning-service-client) to talk to storage providers that adhere to [DEP 0003](https://www.datprotocol.com/deps/0003-http-pinning-service-api/)
-- Can start a local  called `dat-store` using `dat-store install-service` (uses [os-service](https://www.npmjs.com/package/os-service))
+- Can start a local storage provider with `dat-store run-service`
 - Runs on `http://localhost:3472`. Configure port with `--port`, configure hostname / network interface with `--host`.
 - Server logs can be turned off using `--verbose false`
 - Binds to port `3282` for interacting with the P2P network. This can be configured with the `--dat-port` CLI option.
@@ -87,7 +42,9 @@ The store service is using the [data](https://github.com/sindresorhus/env-paths#
 
 ## How do I deal with multiple stores?
 
-`dat-store` supports multiple remote stores using the optional `provider` CLI argument. Whenever you `add` `remove` or `list`, you can specify a provider argument to tell the CLI which store it should be talking to. Think of providers as being similar to [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes)
+`dat-store` supports multiple remote stores using the optional `provider` CLI argument. Whenever you `add` `remove` or `list`, you can specify a provider argument to tell the CLI which store it should be talking to. Think of providers as being similar to [git remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes). You can add a provider with the `dat-store set-provider http://example.com/ PROVIDER_NAME_HERE` command.
+
+You can list your currently configured providers with `dat-store list-providers`.
 
 ## How do I add a folder?
 
@@ -98,6 +55,20 @@ For local stores, you when you specify a folder, and you are able to write to it
 For remote stores, it's a little different. Since a remote store is running on a different computer, it doesn't have a way to access your local folder. In that case, dat-store will find the Dat URL from inside the folder and will send it out to the store like it normally would.
 
 These two modes of operation can be combined together. When you create a dat, add it to your local store. Then add the URL to the remote store. This way, when you make a change to the folder, the local store will update the Dat, and the remote store will get the change and spread it to the rest of the network.
+
+## How do I secure my store?
+
+You can require authentication for your dat-store by specifying the `--authorization-username` and `--authorization-password` flags when you run the service.
+
+## How do I expose my store to the internet?
+
+By default `dat-store run-service` will only listen on local connections.
+
+If you want to expose your store to the internet, specify the `--expose-to-internet` flag. This will make it listen on all network interfaces.
+
+You should probably combine this with the authorization flags so that random people don't abuse your store.
+
+You should also consider putting your store behind NGINX with a letsecrypt certificate so that "Man In the Middle" attacks can't steal your login credentials or dat URLs.
 
 ## How do I make it run in the background?
 
@@ -140,3 +111,62 @@ sudo systemctl status dat-store
 - Enjoy!
 
 To uninstall it, run `nssm remove "dat-store"`
+
+
+## Commands
+
+```
+dat-store <url|path> [provider]
+
+Add a Dat to your storage provider.
+
+Commands:
+  dat-store add <url|path> [provider]       Add a Dat to your storage provider.
+                                                                       [default]
+  dat-store remove <url|path> [provider]    Remove a Dat from your storage
+                                            provider.
+  dat-store list [provider]                 List the Dats in your storage
+                                            provider.
+  dat-store set-provider <url> [provider]   Set the URL of your storage
+                                            provider.
+  dat-store get-provider [provider]         Get the URL of your storage
+                                            provider.
+  dat-store list-providers                  Get the list of providers and their
+                                            names
+  dat-store unset-provider [provider]       Reset your storage provider to the
+                                            default: http://localhost:3472
+  dat-store login <username> [provider]     Logs you into your storage provider.
+  [password]
+  dat-store logout                          Logs you out of your storage
+                                            provider.
+  dat-store run-service                     Runs a local storage provider.
+  dat-store install-service                 Installs a storage service on your
+                                            machine. This will run in the
+                                            background while your computer is
+                                            active.
+  dat-store uninstall-service               Uninstalls your local storage
+                                            service.
+  dat-store migrate                         Migrates old dat-store data to new
+                                            format
+
+Options:
+  --version                  Show version number                       [boolean]
+  --help                     Show help                                 [boolean]
+  --storage-location         The folder to store dats in
+  --port                     The port to use for the HTTP API    [default: 3472]
+  --host                     The hostname to make the HTTP server listen on
+  --verbose                  Whether the HTTP server should output logs
+                                                       [boolean] [default: true]
+  --dat-port                 The port to listen for P2P connections on
+                                                                 [default: 3282]
+  --latest                   Whether to download just the latest changes
+                                                      [boolean] [default: false]
+  --allow-cors               Allow CORS requests so any website can talk to the
+                             store                    [boolean] [default: false]
+  --expose-to-internet       Allow connections from the internet, not just the
+                             localhost                [boolean] [default: false]
+  --authentication-username  Require users to use Basic Auth with this username
+                             to connect                   [string] [default: ""]
+  --authentication-password  Require users to use Basic Auth with this password
+                             to connect                            [default: ""]
+```
