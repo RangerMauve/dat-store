@@ -126,11 +126,24 @@ class StoreClient {
   }
 
   async getToken () {
-    return this.getConfig('token', null)
+    if(this.provider) {
+      const tokens = await this.getConfig('tokens', {})
+      return tokens[this.provider]
+    } else {
+      return this.getConfig('token', null)
+    }
   }
 
   async setToken (token) {
-    await this.setConfig('token', token)
+    if(this.provider) {
+      const tokens = await this.getConfig('tokens', {})
+      const newTokens = Object.assign({}, tokens, {
+        [this.provider]: token
+      })
+      await this.setConfig('tokens', newTokens)
+    } else {
+      await this.setConfig('token', token)
+    }
   }
 
   async init () {
