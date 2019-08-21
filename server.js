@@ -156,7 +156,11 @@ class StoreServer {
       }
     })
 
-    this.fastify.post('/v1/dats/add', async ({ body, ip }) => {
+    this.fastify.post('/v1/dats/add', async (request) => {
+      this.checkAuth(request)
+
+      const { body, ip } = request
+
       const { url } = body
 
       if (url.startsWith('dat://')) {
@@ -168,7 +172,11 @@ class StoreServer {
       return {}
     })
 
-    this.fastify.post('/v1/dats/remove', async ({ body, ip }) => {
+    this.fastify.post('/v1/dats/remove', async (request) => {
+      this.checkAuth(request)
+
+      const { body, ip } = request
+
       try {
         const { url } = body
 
@@ -183,13 +191,18 @@ class StoreServer {
       return {}
     })
 
-    this.fastify.get('/v1/dats/item/:key', async ({ params }) => {
+    this.fastify.get('/v1/dats/item/:key', async (request) => {
+      this.checkAuth(request)
+
+      const { params } = request
       const { key } = params
 
       return this.getMetadata(key)
     })
 
-    this.fastify.post('/v1/dats/item/:key', async () => {
+    this.fastify.post('/v1/dats/item/:key', async (request) => {
+      this.checkAuth(request)
+
       return {}
     })
   }
