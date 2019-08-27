@@ -63,7 +63,7 @@ const commands = yargs
   .command('login <username> [provider] [password]', 'Logs you into your storage provider.', addServiceOptions, login)
   .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
   .command('run-service', 'Runs a local storage provider.', addClientOptions, runService)
-  .command('install-service', 'Installs a storage service on your machine. This will run in the background while your computer is active.', addClientOptions, installService)
+  .command('install-service', 'Installs a storage service on your machine.', addClientOptions, installService)
   .command('uninstall-service', 'Uninstalls your local storage service.', noOptions, uninstallService)
   .command('migrate', 'Migrates old dat-store data to new format', noOptions, migrate)
   .help()

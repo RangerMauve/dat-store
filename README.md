@@ -143,9 +143,7 @@ Commands:
                                             provider.
   dat-store run-service                     Runs a local storage provider.
   dat-store install-service                 Installs a storage service on your
-                                            machine. This will run in the
-                                            background while your computer is
-                                            active.
+                                            machine.
   dat-store uninstall-service               Uninstalls your local storage
                                             service.
   dat-store migrate                         Migrates old dat-store data to new
