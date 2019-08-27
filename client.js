@@ -11,7 +11,7 @@ const debug = require('debug')('dat-store:client')
 const LOCAL_SERVICE = 'http://localhost:3472'
 
 const ERROR_NO_SERVICE = (service) => `Could not connect to service ${service}
-Make sure you have a local service running with 'dat store install-service'
+Make sure you have a local service running with 'dat-store install-service'
 Also check if the remote service you have configured is online`
 const ERROR_NO_PROVIDER = (provider) => `Provider URL not set for ${provider}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
