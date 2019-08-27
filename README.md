@@ -74,10 +74,10 @@ You should probably combine this with the authorization flags so that random peo
 
 You should also consider putting your store behind NGINX with a letsecrypt certificate so that "Man In the Middle" attacks can't steal your login credentials or dat URLs.
 
-If you use NGINX, make sure your `/etc/nginx/sites-available/your-pinning-server.com` server config file looks something like this, to redirect your traffic, for example to the default port 3472:
+If you use NGINX, make sure your `/etc/nginx/sites-available/your-pinning-server.com` server config file looks something like this. For example, to redirect your traffic of `mydatstore` subdomain to the default port 3472 for `dat-store`:
 ```shell
 server {
-  server_name your-pinning-server.com;
+  server_name mydatstore.my-pinning-server.com;
 
   location / {
     proxy_pass http://localhost:3472;
