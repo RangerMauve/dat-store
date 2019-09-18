@@ -219,7 +219,7 @@ class StoreServer {
       // give Paul's Dat API a moment to resolve and win the race
       // otherwsie, just return the resolved manifest you've already got
       manifest = Promise.race([
-        await pda.readManifest(archive),
+        pda.readManifest(archive),
         new Promise((resolve, reject) => setTimeout(() => resolve(manifest), 500))
       ])
       
