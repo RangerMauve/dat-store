@@ -142,10 +142,6 @@ Commands:
   dat-store logout                          Logs you out of your storage
                                             provider.
   dat-store run-service                     Runs a local storage provider.
-  dat-store install-service                 Installs a storage service on your
-                                            machine.
-  dat-store uninstall-service               Uninstalls your local storage
-                                            service.
   dat-store migrate                         Migrates old dat-store data to new
                                             format
 
