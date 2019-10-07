@@ -37,11 +37,13 @@ class Library {
 
     this.urls = new Map()
     this.folders = new Map()
+    this.cores = new Map()
 
     this.latest = latest
     this.storageLocation = storageLocation
     this.folderListLocation = path.join(storageLocation, 'folders.json')
     this.urlListLocation = path.join(storageLocation, 'urls.json')
+    this.coresListLocation = path.join(storageLocation, 'cores.json')
   }
 
   async list () {
@@ -156,13 +158,13 @@ class Library {
           const filter = anymatch(ignore)
 
           const source = folder
-          const dest = {fs: archive, path: '/'}
+          const dest = { fs: archive, path: '/' }
 
           const diff = await dft.diff(source, dest, {
             filter
           })
 
-          await dft.applyRight(source, dest)
+          await dft.applyRight(source, dest, diff)
 
           await pda.exportFilesystemToArchive({
             srcPath: folder,
@@ -186,14 +188,14 @@ class Library {
           const ignore = datignore.toAnymatchRules(datignoreData)
           const filter = anymatch(ignore)
 
-          const source = {fs: archive, path: '/'}
+          const source = { fs: archive, path: '/' }
           const dest = folder
 
           const diff = await dft.diff(source, dest, {
             filter
           })
 
-          await dft.applyRight(source, dest)
+          await dft.applyRight(source, dest, diff)
 
           await pda.exportFilesystemToArchive({
             srcPath: folder,

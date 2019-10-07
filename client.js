@@ -1,9 +1,8 @@
-const util = require('util')
 const path = require('path')
 const fs = require('fs-extra')
 const Conf = require('conf')
 const DatEncoding = require('dat-encoding')
-const { DatPinningServiceClient } = require('dat-pinning-service-client')
+const DatStorageClient = require('dat-storage-client')
 
 const debug = require('debug')('dat-store:client')
 
@@ -126,7 +125,7 @@ class StoreClient {
   }
 
   async getToken () {
-    if(this.provider) {
+    if (this.provider) {
       const tokens = await this.getConfig('tokens', {})
       return tokens[this.provider]
     } else {
@@ -135,7 +134,7 @@ class StoreClient {
   }
 
   async setToken (token) {
-    if(this.provider) {
+    if (this.provider) {
       const tokens = await this.getConfig('tokens', {})
       const newTokens = Object.assign({}, tokens, {
         [this.provider]: token
@@ -148,27 +147,21 @@ class StoreClient {
 
   async init () {
     const service = await this.getService()
-    this.client = new DatPinningServiceClient(service)
+    this.client = new DatStorageClient(service)
     try {
-      await this.callClient('fetchPSADoc')
       const token = await this.getToken()
       if (token) {
-        this.client.setSession(token)
+        this.client.sessionToken = token
       }
     } catch (e) {
       debug(e)
     }
-    if (!this.client.psaDoc) throw new Error(ERROR_NO_SERVICE(service))
-  }
-
-  async callClient (method, ...args) {
-    return util.promisify(this.client[method]).call(this.client, ...args)
   }
 
   async login (username, password) {
     await this.ensureInit()
 
-    await this.callClient('login', username, password)
+    await this.client.login({ username, password })
     const token = this.client.sessionToken
 
     await this.setToken(token)
@@ -194,13 +187,13 @@ class StoreClient {
     // Resolve the URL to either the Dat key or a local path
     url = await this.resolveURL(service, url)
 
-    return this.callClient('addDat', { url })
+    return this.client.add({ url })
   }
 
   async list () {
     await this.ensureInit()
 
-    return this.callClient('listDats')
+    return this.client.list()
   }
 
   async remove (url) {
@@ -211,6 +204,6 @@ class StoreClient {
     // Resolve the URL to either the Dat key or a local path
     url = await this.resolveURL(service, url)
 
-    return this.callClient('removeDat', url)
+    return this.client.remove({ url })
   }
 }

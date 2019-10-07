@@ -8,7 +8,7 @@ const StoreClient = require('./client')
 
 test('Talk to server with client', async (t) => {
   try {
-    const port = await getPort({ port: 3472 })
+    const port = await getPort()
     const localService = `http://localhost:${port}`
 
     const tmpFolder = require('tmp').dirSync({

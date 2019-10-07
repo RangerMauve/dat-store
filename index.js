@@ -53,7 +53,7 @@ const noOptions = () => void 0
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
-  .command(['add <url|path> [provider]', '$0 <url> [provider]'], 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('add <url|path> [provider]', 'Add a Dat to your storage provider.', addServiceOptions, add)
   .command('remove <url|path> [provider]', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
   .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
   .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addServiceOptions, setService)
@@ -131,39 +131,15 @@ async function logout (args) {
   await getClient(args).logout()
 }
 
-function getServiceLocation () {
-  const path = require('path')
-  return path.join(__dirname, 'service.js')
-}
-
 function runService () {
   require('./service.js')
-}
-
-async function installService (args) {
-  const service = require('os-service')
-  const programPath = getServiceLocation()
-
-  const programArgs = process.argv.slice(3)
-
-  service.add(SERVICE_NAME, { programPath, programArgs }, (e) => {
-    if (e) throw e
-  })
-}
-
-async function uninstallService (args) {
-  const service = require('os-service')
-
-  service.remove(SERVICE_NAME, (e) => {
-    if (e) throw e
-  })
 }
 
 function migrate () {
   require('./migrate')()
 }
 
-async function getProviders(args) {
+async function getProviders (args) {
   const client = await getClient(args)
 
   const service = await client.getService()
@@ -172,7 +148,7 @@ async function getProviders(args) {
 
   const providers = await client.getProviders()
 
-  for(let name of Object.keys(providers)) {
+  for (let name of Object.keys(providers)) {
     console.log(name, '-', providers[name])
   }
 }

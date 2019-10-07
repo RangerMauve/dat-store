@@ -84,12 +84,12 @@ class StoreServer {
     )
   }
 
-  checkAuth(request) {
-    const expectedAuth = this.authenticationUsername+this.authenticationPassword
-    if(expectedAuth) {
+  checkAuth (request) {
+    const expectedAuth = this.authenticationUsername + this.authenticationPassword
+    if (expectedAuth) {
       const authHeader = request.headers.authorization
       const gotAuth = authHeader.slice('Bearer '.length)
-      if(!tsse(gotAuth, expectedAuth)) {
+      if (!tsse(gotAuth, expectedAuth)) {
         throw new Error(ERROR_INVALID_CREDENTIALS)
       }
     }
@@ -113,15 +113,15 @@ class StoreServer {
       }
     })
 
-    this.fastify.post('/v1/accounts/login', async ({body={}}) => {
-      if(this.authenticationPassword && !tsse(body.password || '', this.authenticationPassword)) {
+    this.fastify.post('/v1/accounts/login', async ({ body = {} }) => {
+      if (this.authenticationPassword && !tsse(body.password || '', this.authenticationPassword)) {
         throw new Error(ERROR_INVALID_CREDENTIALS)
       }
-      if(this.authenticationUsername && !tsse(body.username || '', this.authenticationUsername)) {
+      if (this.authenticationUsername && !tsse(body.username || '', this.authenticationUsername)) {
         throw new Error(ERROR_INVALID_CREDENTIALS)
       }
 
-      const sessionToken = this.authenticationUsername+this.authenticationPassword
+      const sessionToken = this.authenticationUsername + this.authenticationPassword
 
       return {
         sessionToken
