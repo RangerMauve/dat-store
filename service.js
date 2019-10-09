@@ -48,6 +48,10 @@ const argv = yargs
     default: '',
     type: 'password'
   })
+  .option('manifest-timeout', {
+    describe: 'time out if the PDA cannot be read with timeout milliseconds',
+    default: 500
+  })
   .argv
 
 const service = require('os-service')
