@@ -194,6 +194,8 @@ Options:
                              to connect                   [string] [default: ""]
   --authentication-password  Require users to use Basic Auth with this password
                              to connect                            [default: ""]
+  --manifest-timeout         set the timeout in milliseconds on reading the PDA 
+                             manifest, defaults to 500 ms
 ```
 
 ## Migrating from 3.0.0 to 4.0.0

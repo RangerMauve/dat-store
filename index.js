@@ -47,6 +47,10 @@ const addServiceOptions = (yargs) => yargs
     default: '',
     type: 'password'
   })
+  .option('manifest-timeout', {
+    describe: 'time out if the PDA cannot be read with timeout milliseconds',
+    default: 500
+  })
 const addClientOptions = (yargs) => yargs
   .option('config-location')
 const noOptions = () => void 0

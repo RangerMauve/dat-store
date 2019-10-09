@@ -36,7 +36,8 @@ class StoreServer {
     allowCors = false,
     exposeToInternet = false,
     authenticationUsername = '',
-    authenticationPassword = ''
+    authenticationPassword = '',
+    manifestTimeout
   }) {
     storageLocation = storageLocation || DEFAULT_STORAGE_LOCATION
 
@@ -48,6 +49,7 @@ class StoreServer {
 
     this.authenticationUsername = authenticationUsername
     this.authenticationPassword = authenticationPassword
+    this.manifestTimeout = manifestTimeout
 
     this.fastify = createFastify({ logger: verbose })
 
@@ -214,7 +216,12 @@ class StoreServer {
       name: key
     }
     try {
-      manifest = await pda.readManifest(archive)
+      
+      manifest = Promise.race([
+        await pda.readManifest(archive),
+        delay(manifestTimeout).then(() => manifest) 
+      ])
+
     } catch (e) {
       // It must not have a manifest, that's okay
     }
