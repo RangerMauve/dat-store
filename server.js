@@ -36,7 +36,8 @@ class StoreServer {
     allowCors = false,
     exposeToInternet = false,
     authenticationUsername = '',
-    authenticationPassword = ''
+    authenticationPassword = '',
+    manifestTimeout
   }) {
     storageLocation = storageLocation || DEFAULT_STORAGE_LOCATION
 
@@ -48,6 +49,7 @@ class StoreServer {
 
     this.authenticationUsername = authenticationUsername
     this.authenticationPassword = authenticationPassword
+    this.manifestTimeout = manifestTimeout
 
     this.fastify = createFastify({ logger: verbose })
 
@@ -215,14 +217,11 @@ class StoreServer {
     }
     try {
       
-      // https://javascript.info/promise-api#promise-race
-      // give Paul's Dat API a moment to resolve and win the race
-      // otherwsie, just return the resolved manifest you've already got
       manifest = Promise.race([
-        pda.readManifest(archive),
-        new Promise((resolve, reject) => setTimeout(() => resolve(manifest), 500))
+        await pda.readManifest(archive),
+        delay(manifestTimeout).then(() => manifest) 
       ])
-      
+
     } catch (e) {
       // It must not have a manifest, that's okay
     }
