@@ -117,7 +117,7 @@ Description=Dat storage provider, keeps dats alive in the background.
 Type=simple
 # Check that dat-store is present at this location
 # If it's not, replace the path with its location
-ExecStart=`which dat-store` run-service
+ExecStart=$(which dat-store) run-service
 Restart=always
 
 [Install]
