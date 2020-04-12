@@ -53,7 +53,7 @@ const addServiceOptions = (yargs) => yargs
   })
 const addClientOptions = (yargs) => yargs
   .option('config-location')
-const noOptions = () => void 0
+const noOptions = () => null
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
@@ -89,7 +89,7 @@ async function add (args) {
 async function list (args) {
   const { items } = await getClient(args).list()
 
-  for (let { url, name, title } of items) {
+  for (const { url, name, title } of items) {
     let line = url
     if (name || title) {
       line = `${url} - ${name || title}`
@@ -152,7 +152,7 @@ async function getProviders (args) {
 
   const providers = await client.getProviders()
 
-  for (let name of Object.keys(providers)) {
+  for (const name of Object.keys(providers)) {
     console.log(name, '-', providers[name])
   }
 }

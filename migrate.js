@@ -20,7 +20,7 @@ module.exports = async function migrate () {
     .filter((folder) => folder.length > 2)
 
   // Move them to new folder location
-  for (let folder of folders) {
+  for (const folder of folders) {
     const toMove = path.join(
       STORAGE_LOCATION,
       folder.slice(0, 2),

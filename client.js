@@ -9,9 +9,6 @@ const debug = require('debug')('dat-store:client')
 // URL for storage provider running on localhost
 const LOCAL_SERVICE = 'http://localhost:3472'
 
-const ERROR_NO_SERVICE = (service) => `Could not connect to service ${service}
-Make sure you have a local service running with 'dat-store install-service'
-Also check if the remote service you have configured is online`
 const ERROR_NO_PROVIDER = (provider) => `Provider URL not set for ${provider}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
 
@@ -47,7 +44,7 @@ class StoreClient {
   async resolveURL (service, url) {
     try {
       const key = DatEncoding.decode(url)
-      return `dat://` + DatEncoding.encode(key)
+      return 'dat://' + DatEncoding.encode(key)
     } catch (e) {
       // Probably a DNS based Dat URL
       if (url.startsWith('dat://')) {
@@ -57,25 +54,21 @@ class StoreClient {
       // Probably a folder path
       const cwd = process.cwd()
       const fullPath = path.resolve(cwd, url)
+
+      // If the service is local, send the full path to it
+      if (service === this.localService) {
+        return fullPath
+      }
+
       const keyLocation = path.resolve(fullPath, './.dat')
 
       try {
+        // Try reading the `.dat` key from the archive if one exists
         const key = await fs.readFile(keyLocation)
-        if (service === this.localService) {
-          return fullPath
-        }
-        return `dat://` + DatEncoding.encode(key)
+        return 'dat://' + DatEncoding.encode(key)
       } catch (e) {
-        try {
-          const rawLocation = path.resolve(fullPath, './.dat/metadata.key')
-          const key = await fs.readFile(rawLocation)
-          if (service === this.localService) {
-            return fullPath
-          }
-          return `dat://` + DatEncoding.encode(key)
-        } catch (e) {
-          throw new Error(ERROR_NOT_DAT_DIRECTORY(url))
-        }
+        // Can't resolve the URL to a folder or a dat URL
+        throw new Error(ERROR_NOT_DAT_DIRECTORY(url))
       }
     }
   }

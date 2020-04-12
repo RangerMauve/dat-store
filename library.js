@@ -1,12 +1,12 @@
 const fs = require('fs-extra')
 const path = require('path')
 const DatEncoding = require('dat-encoding')
-const pda = require('pauls-dat-api')
 const { promisify } = require('util')
 const watch = require('recursive-watch')
 const datignore = require('@beaker/datignore')
 const anymatch = require('anymatch')
 const dft = require('diff-file-tree')
+const slugify = require('@sindresorhus/slugify')
 
 const SDK = require('dat-sdk')
 
@@ -17,23 +17,25 @@ const ERROR_LOADING_DIRECTORY = (path, e) => `Could not load folder ${path}:${e.
 module.exports =
 
 class Library {
-  constructor ({ storageLocation, datPort, latest = false }) {
-    const { Hyperdrive, resolveName, deleteStorage, destroy } = SDK({
-      storageOpts: {
-        storageLocation
-      },
+  static async create (opts = {}) {
+    const { storageLocation, datPort } = opts
+    const sdk = await SDK({
+      storage: storageLocation,
       swarmOpts: {
-        port: datPort,
-
-        // Had issues with tests failing when UTP was enabled
-        utp: false
+        ephemeral: false,
+        port: datPort
       }
     })
 
+    return new Library({ ...opts, sdk })
+  }
+
+  constructor ({ storageLocation, datPort, latest = false, sdk }) {
+    const { Hyperdrive, resolveName, close } = sdk
+
     this.Hyperdrive = Hyperdrive
     this.resolveName = promisify(resolveName)
-    this.destroySDK = destroy
-    this.deleteStorage = promisify(deleteStorage)
+    this.closeSDK = close
 
     this.urls = new Map()
     this.folders = new Map()
@@ -57,7 +59,7 @@ class Library {
   async get (url) {
     const entries = [...this.urls.entries(), ...this.folders.entries()]
 
-    for (let [key, archive] of entries) {
+    for (const [key, archive] of entries) {
       if (key === url) return archive
       const archiveURL = 'dat://' + DatEncoding.encode(archive.key)
       if (archiveURL === url) return archive
@@ -67,11 +69,11 @@ class Library {
   async addURL (url) {
     if (this.urls.has(url)) {
       const archive = this.urls.get(url)
-      await awaitFN(archive, 'ready')
+      await archive.ready()
       return archive
     }
 
-    const resolved = `dat://` + await this.resolveName(url)
+    const resolved = 'dat://' + await this.resolveName(url)
     const key = DatEncoding.decode(resolved)
     const archive = this.Hyperdrive(key, {
       sparse: this.latest
@@ -79,17 +81,17 @@ class Library {
 
     this.urls.set(url, archive)
 
-    await awaitFN(archive, 'ready')
+    await archive.ready()
 
     await this.saveUrls()
 
     return archive
   }
 
-  async unloadArchive (archive) {
+  async unloadArchive (archive, shouldDelete) {
     if (archive.destroyMirror) archive.destroyMirror()
 
-    await awaitFN(archive, 'close')
+    await archive.destroyData()
   }
 
   async removeURL (url) {
@@ -97,18 +99,16 @@ class Library {
 
     if (!archive) return
 
-    await this.unloadURL(url)
-
-    await this.deleteStorage(archive.key)
+    await this.unloadURL(url, true)
 
     await this.saveUrls()
   }
 
-  async unloadURL (url) {
+  async unloadURL (url, shouldDelete) {
     const archive = this.urls.get(url)
     if (!archive) throw new Error(ERROR_NOT_FOUND_URL(url))
 
-    await this.unloadArchive(archive)
+    await this.unloadArchive(archive, shouldDelete)
 
     this.urls.delete(url)
   }
@@ -116,7 +116,9 @@ class Library {
   async addFolder (folder) {
     if (this.folders.has(folder)) {
       const archive = this.folders.get(folder)
-      await awaitFN(archive, 'ready')
+
+      await archive.ready()
+
       return archive
     }
 
@@ -124,35 +126,32 @@ class Library {
       sparse: this.latest
     }
 
-    const dotDatLocation = path.join(folder, `.dat`)
-    let hasDotDat = await fs.pathExists(dotDatLocation)
+    const dotDatLocation = path.join(folder, '.dat')
+    const hasDotDat = await fs.pathExists(dotDatLocation)
 
-    if (hasDotDat) {
-      const stat = await fs.stat(dotDatLocation)
-      opts.latest = this.latest || stat.isDirectory()
+    // If the folder hasn't been registerd as an archive
+    // Make up a unique name and use it as a Hyperdrive namespace
+    if (!hasDotDat) {
+      const drivename = slugify(folder)
+      await fs.writeFile(dotDatLocation, drivename, 'utf8')
     }
 
-    const archive = this.Hyperdrive(folder, opts)
+    // Read the `.dat` file, which should have a key
+    const key = await fs.readFile(dotDatLocation, 'utf8')
+
+    // Open the hyperdrive
+    const archive = this.Hyperdrive(key, opts)
 
     this.folders.set(folder, archive)
 
-    await awaitFN(archive, 'ready')
+    await archive.ready()
 
     await this.saveFolders()
-
-    // Double check if a `.dat` has been added after loading
-    // This happens when a fresh folder is added to the SDK
-    if (!hasDotDat) {
-      hasDotDat = await fs.pathExists(dotDatLocation)
-    }
-
-    // If there's no `.dat` file or folder, don't try to watch for changes
-    if (!hasDotDat) return archive
 
     if (archive.writable) {
       const syncFolder = async () => {
         try {
-        // Try reading the .datignore file
+          // Try reading the .datignore file
           const datignoreData = await fs.readFile(path.join(folder, '.datignore'), 'utf8').catch(() => '')
           const ignore = datignore.toAnymatchRules(datignoreData)
           const filter = anymatch(ignore)
@@ -165,26 +164,20 @@ class Library {
           })
 
           await dft.applyRight(source, dest, diff)
-
-          await pda.exportFilesystemToArchive({
-            srcPath: folder,
-            dstArchive: archive,
-            ignore
-          })
         } catch (e) {
         // Whatever
         }
       }
 
       // Mirror from the folder files to the archive
-      syncFolder()
+      await syncFolder()
 
       archive.destroyMirror = watch(folder, syncFolder)
     } else {
       const syncFolder = async () => {
         try {
         // Try reading the .datignore file
-          const datignoreData = await pda.readFile(archive, '.datignore', 'utf8').catch(() => '')
+          const datignoreData = await archive.readFile('.datignore', 'utf8').catch(() => '')
           const ignore = datignore.toAnymatchRules(datignoreData)
           const filter = anymatch(ignore)
 
@@ -196,27 +189,19 @@ class Library {
           })
 
           await dft.applyRight(source, dest, diff)
-
-          await pda.exportFilesystemToArchive({
-            srcPath: folder,
-            dstArchive: archive,
-            ignore
-          })
         } catch (e) {
         // Whatever
         }
       }
 
       // Mirror from the archive to the folder
-      syncFolder()
+      await syncFolder()
 
-      // watch for changes in the archive
-      const events = pda.watch(archive)
-
-      events.on('data', syncFolder)
+      // Watch for changes in the hypertrie
+      const watcher = archive.db.watch('/', syncFolder)
 
       archive.destroyMirror = () => {
-        events.emit('close')
+        watcher.destroy()
       }
     }
 
@@ -224,16 +209,16 @@ class Library {
   }
 
   async removeFolder (path) {
-    await this.unloadFolder(path)
+    await this.unloadFolder(path, true)
 
     await this.saveFolders()
   }
 
-  async unloadFolder (path) {
+  async unloadFolder (path, shouldDelete) {
     const archive = this.folders.get(path)
     if (!archive) throw new Error(ERROR_NOT_FOUND_FOLDER(path))
 
-    await this.unloadArchive(archive)
+    await this.unloadArchive(archive, shouldDelete)
 
     this.folders.delete(path)
   }
@@ -298,25 +283,10 @@ class Library {
   }
 
   async close () {
-    for (let archive of this.folders.values()) {
+    for (const archive of this.folders.values()) {
       await this.unloadArchive(archive)
     }
 
-    await new Promise((resolve, reject) => {
-      this.destroySDK((err) => {
-        if (err) reject(err)
-        else resolve()
-      })
-    })
+    await this.closeSDK()
   }
-}
-
-function awaitFN (archive, fnName, ...args) {
-  return new Promise((resolve, reject) => {
-    const fn = archive[fnName]
-    fn.call(archive, ...args, (err) => {
-      if (err) reject(err)
-      else resolve()
-    })
-  })
 }

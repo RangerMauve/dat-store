@@ -1,9 +1,7 @@
 const createFastify = require('fastify')
-const pda = require('pauls-dat-api')
-const DSS = require('discovery-swarm-stream/server')
-const DAT_SWARM_DEFAULTS = require('dat-swarm-defaults')
 const envPaths = require('env-paths')
 const tsse = require('tsse')
+const delay = require('delay')
 
 const Library = require('./library')
 
@@ -14,6 +12,8 @@ const DEFAULT_ANY_HOST = '::'
 
 const ERROR_NOT_LOCAL = (path, ip) => `Cannot Add File Path From Remote IP ${path}, ${ip}`
 const ERROR_INVALID_CREDENTIALS = 'Please supply valid username and password credentials'
+
+const MANIFEST_TIMEOUT = 3000
 
 module.exports =
 
@@ -41,7 +41,7 @@ class StoreServer {
   }) {
     storageLocation = storageLocation || DEFAULT_STORAGE_LOCATION
 
-    this.library = new Library({
+    this.library = await Library.create({
       storageLocation, datPort, latest
     })
 
@@ -66,19 +66,9 @@ class StoreServer {
       host = DEFAULT_ANY_HOST
     }
 
-    const swarmOpts = DAT_SWARM_DEFAULTS({
-      hash: false
-    })
-
-    this.dss = new DSS(swarmOpts)
-
     await this.library.load()
 
     this.initRoutes()
-
-    const handle = (conn) => this.dss.addClient(conn)
-
-    this.fastify.register(require('fastify-websocket'), { handle })
 
     await this.fastify.listen(
       port || DEFAULT_PORT,
@@ -100,17 +90,17 @@ class StoreServer {
   initRoutes () {
     this.fastify.get('/.well-known/psa', async () => {
       return {
-        'PSA': 1,
-        'title': 'My ',
-        'description': 'Keep your Dats online!',
-        'links': [{
-          'rel': 'https://archive.org/services/purl/purl/datprotocol/spec/pinning-service-account-api',
-          'title': 'User accounts API',
-          'href': '/v1/accounts'
+        PSA: 1,
+        title: 'Dat Store',
+        description: 'Keep your Dats online!',
+        links: [{
+          rel: 'https://archive.org/services/purl/purl/datprotocol/spec/pinning-service-account-api',
+          title: 'User accounts API',
+          href: '/v1/accounts'
         }, {
-          'rel': 'https://archive.org/services/purl/purl/datprotocol/spec/pinning-service-dats-api',
-          'title': 'Dat pinning API',
-          'href': '/v1/dats'
+          rel: 'https://archive.org/services/purl/purl/datprotocol/spec/pinning-service-dats-api',
+          title: 'Dat pinning API',
+          href: '/v1/dats'
         }]
       }
     })
@@ -147,7 +137,7 @@ class StoreServer {
 
       const items = []
 
-      for (let key of keys) {
+      for (const key of keys) {
         const metadata = await this.getMetadata(key)
 
         items.push(metadata)
@@ -216,12 +206,10 @@ class StoreServer {
       name: key
     }
     try {
-      
-      manifest = Promise.race([
-        await pda.readManifest(archive),
-        delay(manifestTimeout).then(() => manifest) 
+      manifest = await Promise.race([
+        await archive.readFile('/dat.json', 'utf8').then((raw) => JSON.parse(raw)),
+        delay(MANIFEST_TIMEOUT).then(() => manifest)
       ])
-
     } catch (e) {
       // It must not have a manifest, that's okay
     }
@@ -236,18 +224,7 @@ class StoreServer {
   }
 
   async destroy () {
-    await new Promise((resolve, reject) => {
-      this.fastify.close((err) => {
-        if (err) reject(err)
-        else resolve()
-      })
-    })
-    await new Promise((resolve, reject) => {
-      this.dss.destroy((err) => {
-        if (err) reject(err)
-        else resolve()
-      })
-    })
+    await this.fastify.close()
 
     await this.library.close()
   }

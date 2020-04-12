@@ -2,7 +2,7 @@
 
 dat-store aims to solve the question of "How do I make sure my Dat is being shared".
 
-It can be used as an extension for the Dat CLI to add your Dats to "stores" that will keep a copy of your content and keep it online.
+It can be used as a CLI to watch for changes in a folder, or to keep a Dat online based on its URL.
 
 **Note: dat-store uses features from node 10.10.0 so please make sure your version is higher than that.**
 
@@ -14,6 +14,12 @@ dat-store run-service
 
 # Add a dat to the dat-store so it's always being shared
 dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
+
+# Add a folder to the dat-store to create a new archive and copy changes from your folder into it.
+dat-store add ./example
+
+# Start synchronizing changes in an archive to a local folder
+dat-store clone ./example dat://example.com
 
 # Configure external storage provider
 dat-store set-provider https://hashbase.io/ hashbase
@@ -28,8 +34,8 @@ dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba
 - Runs on `http://localhost:3472`. Configure port with `--port`, configure hostname / network interface with `--host`.
 - Server logs can be turned off using `--verbose false`
 - Binds to port `3282` for interacting with the P2P network. This can be configured with the `--dat-port` CLI option.
-- The service uses [dat-librarian](https://www.npmjs.com/package/dat-librarian) to manage archives
-- The service acts as a discovery gateway for [discovery-swarm-stream](https://www.npmjs.com/package/discovery-swarm-stream)
+- The service uses the [Dat SDK](https://www.npmjs.com/package/dat-sdk) to manage archives
+- The service acts as a gateway for [hyperswarm-web](https://www.npmjs.com/package/hyperswarm-web]
 - Can work with multiple providers at the same time
 
 ## FAQ
@@ -52,7 +58,9 @@ You can list your currently configured providers with `dat-store list-providers`
 
 Depending on where a store is located, there are different ways that it can handle folders.
 
-For local stores, you when you specify a folder, and you are able to write to it, it'll behave similarly to the [dat share](https://github.com/datproject/dat#sharing-data) command, but instead of needing to have the command running all the time, it'll be handled by the store. The store will load up the dat archive inside your folder, watch for changes, and share them with the rest of the network. If you aren't able to write to the archive, it will behave like the [dat clone](https://github.com/datproject/dat#download-demo) command and will sync changes from a remote dat to your local folder.
+For locally running stores, you can `add` a folder which will create a `.dat` file with the key of your archive and will begin to sync changes from your folder to the archive.
+
+You can also use the `clone` command with a URL and a folder to create a `.dat` file with the URL of the cloned archive and begin loading changes from the archive into your folder.
 
 For remote stores, it's a little different. Since a remote store is running on a different computer, it doesn't have a way to access your local folder. In that case, dat-store will find the Dat URL from inside the folder and will send it out to the store like it normally would.
 
