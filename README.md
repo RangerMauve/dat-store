@@ -35,7 +35,6 @@ dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba
 - Server logs can be turned off using `--verbose false`
 - Binds to port `3282` for interacting with the P2P network. This can be configured with the `--dat-port` CLI option.
 - The service uses the [Dat SDK](https://www.npmjs.com/package/dat-sdk) to manage archives
-- The service acts as a gateway for [hyperswarm-web](https://www.npmjs.com/package/hyperswarm-web]
 - Can work with multiple providers at the same time
 
 ## FAQ
