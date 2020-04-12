@@ -12,6 +12,7 @@ const LOCAL_SERVICE = 'http://localhost:3472'
 const ERROR_NOT_LOCAL = (service, localService) => `Provider ${service} must be running on ${this.localService} to clone`
 const ERROR_NO_PROVIDER = (provider) => `Provider URL not set for ${provider}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
+const ERROR_NOT_DAT = (key) => `Key must be a dat:// URL, instead it's ${key}`
 
 module.exports =
 
@@ -185,6 +186,8 @@ class StoreClient {
   }
 
   async clone (path, key) {
+    if (key.startsWith('dat://')) throw new Error(ERROR_NOT_DAT(key))
+
     await this.ensureInit()
 
     const service = await this.getService()

@@ -1,7 +1,6 @@
 const fs = require('fs-extra')
 const path = require('path')
 const DatEncoding = require('dat-encoding')
-const { promisify } = require('util')
 const watch = require('recursive-watch')
 const datignore = require('@beaker/datignore')
 const anymatch = require('anymatch')
@@ -13,6 +12,15 @@ const SDK = require('dat-sdk')
 const ERROR_NOT_FOUND_URL = (url) => `URL Not Found ${url}`
 const ERROR_NOT_FOUND_FOLDER = (path) => `Folder Not Found ${path}`
 const ERROR_LOADING_DIRECTORY = (path, e) => `Could not load folder ${path}:${e.message}`
+const ERROR_DNS_ISSUE = (key, e) => `Unable to resolve DNS for ${key}, ${e.message}`
+
+const DNS_ERRORS = [
+  'DNS record not found',
+  'Domain is not a FQDN.',
+  'Invalid dns-over-https record, must provide json',
+  'Invalid dns-over-https record, no TXT answers given',
+  'Invalid dns-over-https record, no TXT answer given'
+]
 
 module.exports =
 
@@ -34,7 +42,7 @@ class Library {
     const { Hyperdrive, resolveName, close } = sdk
 
     this.Hyperdrive = Hyperdrive
-    this.resolveName = promisify(resolveName)
+    this.resolveName = resolveName
     this.closeSDK = close
 
     this.urls = new Map()
@@ -136,8 +144,21 @@ class Library {
       await fs.writeFile(dotDatLocation, drivename, 'utf8')
     }
 
-    // Read the `.dat` file, which should have a key
-    const key = await fs.readFile(dotDatLocation, 'utf8')
+    // Read the `.dat` file, which should have a url or key
+    let key = await fs.readFile(dotDatLocation, 'utf8')
+
+    // Only try to resolve URLs
+    if (key.startsWith('dat://')) {
+      try {
+        const resolved = 'dat://' + await this.resolveName(key)
+        key = DatEncoding.decode(resolved)
+      } catch (e) {
+        for (const known of DNS_ERRORS) {
+          if (e.message.startsWith(known)) throw new Error(ERROR_DNS_ISSUE(key, e))
+        }
+        // Must not be a DNS issue, so it's probably a named archive?
+      }
+    }
 
     // Open the hyperdrive
     const archive = this.Hyperdrive(key, opts)
