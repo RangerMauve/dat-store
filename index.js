@@ -58,6 +58,7 @@ const noOptions = () => null
 const commands = yargs
   .scriptName(SERVICE_NAME)
   .command('add <url|path> [provider]', 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('clone <path> <url> [provider]', 'Add a Dat to a folder and sync changes to it.', addServiceOptions, clone)
   .command('remove <url|path> [provider]', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
   .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
   .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addServiceOptions, setService)
@@ -84,6 +85,10 @@ function getClient (args) {
 
 async function add (args) {
   await getClient(args).add(args.url)
+}
+
+async function clone (args) {
+  await getService(args).clone(args.path, args.key)
 }
 
 async function list (args) {

@@ -151,7 +151,7 @@ test('Talk to server with client', async (t) => {
     t.pass('Destroyed server')
 
     await fs.remove(tmpFolder)
-		await sdk.close()	
+    await sdk.close()
 
     t.end()
   } catch (e) {

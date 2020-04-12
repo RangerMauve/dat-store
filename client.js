@@ -9,6 +9,7 @@ const debug = require('debug')('dat-store:client')
 // URL for storage provider running on localhost
 const LOCAL_SERVICE = 'http://localhost:3472'
 
+const ERROR_NOT_LOCAL = (service, localService) => `Provider ${service} must be running on ${this.localService} to clone`
 const ERROR_NO_PROVIDER = (provider) => `Provider URL not set for ${provider}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
 
@@ -181,6 +182,27 @@ class StoreClient {
     url = await this.resolveURL(service, url)
 
     return this.client.add({ url })
+  }
+
+  async clone (path, key) {
+    await this.ensureInit()
+
+    const service = await this.getService()
+
+    // Probably a folder path
+    const cwd = process.cwd()
+    const fullPath = path.resolve(cwd, path)
+
+    // If the service is local, we can't clone with it
+    if (service === this.localService) {
+      throw new Error(ERROR_NOT_LOCAL(service, this.localService))
+    }
+
+    const keyLocation = path.resolve(fullPath, './.dat')
+
+    await fs.writeFile(keyLocation, key)
+
+    return this.add(path)
   }
 
   async list () {
