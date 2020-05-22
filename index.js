@@ -93,10 +93,10 @@ async function clone (args) {
 async function list (args) {
   const { items } = await getClient(args).list()
 
-  for (const { url, name, title } of items) {
+  for (const { url, title } of items) {
     let line = url
-    if (name || title) {
-      line = `${url} - ${name || title}`
+    if (title) {
+      line = `${url} - ${title}`
     }
     console.log(line)
   }

@@ -203,11 +203,11 @@ class StoreServer {
     const archive = await this.library.get(key)
 
     let manifest = {
-      name: key
+      title: key
     }
     try {
       manifest = await Promise.race([
-        await archive.readFile('/dat.json', 'utf8').then((raw) => JSON.parse(raw)),
+        await archive.readFile('/index.json', 'utf8').then((raw) => JSON.parse(raw)),
         delay(MANIFEST_TIMEOUT).then(() => manifest)
       ])
     } catch (e) {
@@ -216,10 +216,8 @@ class StoreServer {
 
     return {
       url: `hyper://${archive.key.toString('hex')}`,
-      name: manifest.name,
       title: manifest.title,
-      description: manifest.description,
-      additionalUrls: []
+      description: manifest.description
     }
   }
 
