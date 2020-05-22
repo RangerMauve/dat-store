@@ -99,7 +99,7 @@ class Library {
   async unloadArchive (archive, shouldDelete) {
     if (archive.destroyMirror) archive.destroyMirror()
 
-    await archive.destroyData()
+    await archive.destroyStorage()
   }
 
   async removeURL (url) {

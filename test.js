@@ -100,6 +100,8 @@ test('Talk to server with client', async (t) => {
 
     await folderDrive.ready()
 
+    await delay(3000)
+
     const datJSON = await folderDrive.readFile('/dat.json')
 
     t.ok(datJSON, 'Loaded data from archive')
@@ -129,12 +131,12 @@ test('Talk to server with client', async (t) => {
 
     await fs.writeFile(exampleFileLocation, exampleFileData)
 
-    // Wait for the archive to detect the write
-    await delay(500)
-
     const updatedArchive = sdk.Hyperdrive(localURL)
 
     await updatedArchive.ready()
+
+    // Wait for change to propogate
+    await delay(3000)
 
     const gotExampleData = await updatedArchive.readFile(exampleFileName, 'utf8')
 

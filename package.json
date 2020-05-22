@@ -31,7 +31,7 @@
     "anymatch": "^3.0.3",
     "conf": "^4.0.1",
     "dat-encoding": "^5.0.1",
-    "dat-sdk": "^2.0.0-5",
+    "dat-sdk": "^2.0.0",
     "dat-storage-client": "^1.0.0",
     "debug": "^4.1.1",
     "delay": "^4.3.0",
