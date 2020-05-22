@@ -1,6 +1,6 @@
 {
   "name": "dat-store",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "An extension for the Dat CLI to support s",
   "main": "index.js",
   "scripts": {
