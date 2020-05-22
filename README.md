@@ -13,18 +13,18 @@ npm install -g dat-store
 dat-store run-service
 
 # Add a dat to the dat-store so it's always being shared
-dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
+dat-store add hyper://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/
 
 # Add a folder to the dat-store to create a new archive and copy changes from your folder into it.
 dat-store add ./example
 
 # Start synchronizing changes in an archive to a local folder
-dat-store clone ./example dat://example.com
+dat-store clone ./example hyper://example.com
 
 # Configure external storage provider
 dat-store set-provider https://hashbase.io/ hashbase
 dat-store login yourusername hashbase
-dat-store add dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/ hashbase
+dat-store add hyper://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/ hashbase
 ```
 
 ## How it works:

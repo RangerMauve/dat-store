@@ -12,7 +12,7 @@ const LOCAL_SERVICE = 'http://localhost:3472'
 const ERROR_NOT_LOCAL = (service, localService) => `Provider ${service} must be running on ${this.localService} to clone`
 const ERROR_NO_PROVIDER = (provider) => `Provider URL not set for ${provider}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
-const ERROR_NOT_DAT = (key) => `Key must be a dat:// URL, instead it's ${key}`
+const ERROR_NOT_DAT = (key) => `Key must be a hyper:// URL, instead it's ${key}`
 
 module.exports =
 
@@ -46,10 +46,10 @@ class StoreClient {
   async resolveURL (service, url) {
     try {
       const key = DatEncoding.decode(url)
-      return 'dat://' + DatEncoding.encode(key)
+      return 'hyper://' + DatEncoding.encode(key)
     } catch (e) {
       // Probably a DNS based Dat URL
-      if (url.startsWith('dat://')) {
+      if (url.startsWith('hyper://')) {
         return url
       }
 
@@ -67,7 +67,7 @@ class StoreClient {
       try {
         // Try reading the `.dat` key from the archive if one exists
         const key = await fs.readFile(keyLocation)
-        return 'dat://' + DatEncoding.encode(key)
+        return 'hyper://' + DatEncoding.encode(key)
       } catch (e) {
         // Can't resolve the URL to a folder or a dat URL
         throw new Error(ERROR_NOT_DAT_DIRECTORY(url))
@@ -186,7 +186,7 @@ class StoreClient {
   }
 
   async clone (path, key) {
-    if (key.startsWith('dat://')) throw new Error(ERROR_NOT_DAT(key))
+    if (key.startsWith('hyper://')) throw new Error(ERROR_NOT_DAT(key))
 
     await this.ensureInit()
 

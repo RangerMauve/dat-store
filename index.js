@@ -18,7 +18,7 @@ const addServiceOptions = (yargs) => yargs
     default: true,
     type: 'boolean'
   })
-  .option('dat-port', {
+  .option('p2p-port', {
     describe: 'The port to listen for P2P connections on',
     default: 3282
   })
@@ -68,7 +68,6 @@ const commands = yargs
   .command('login <username> [provider] [password]', 'Logs you into your storage provider.', addServiceOptions, login)
   .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
   .command('run-service', 'Runs a local storage provider.', addClientOptions, runService)
-  .command('migrate', 'Migrates old dat-store data to new format', noOptions, migrate)
   .help()
 
 module.exports = (argv) => {
@@ -142,10 +141,6 @@ async function logout (args) {
 
 function runService () {
   require('./service.js')
-}
-
-function migrate () {
-  require('./migrate')()
 }
 
 async function getProviders (args) {

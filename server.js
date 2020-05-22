@@ -155,7 +155,7 @@ class StoreServer {
 
       const { url } = body
 
-      if (url.startsWith('dat://')) {
+      if (url.startsWith('hyper://')) {
         await this.library.addURL(url)
       } else {
         if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
@@ -172,7 +172,7 @@ class StoreServer {
       try {
         const { url } = body
 
-        if (url.startsWith('dat://')) {
+        if (url.startsWith('hyper://')) {
           await this.library.removeURL(url)
         } else {
           if (!ip.endsWith('127.0.0.1')) { throw new Error(ERROR_NOT_LOCAL(url, ip)) }
@@ -215,7 +215,7 @@ class StoreServer {
     }
 
     return {
-      url: `dat://${archive.key.toString('hex')}`,
+      url: `hyper://${archive.key.toString('hex')}`,
       name: manifest.name,
       title: manifest.title,
       description: manifest.description,

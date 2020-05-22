@@ -69,7 +69,7 @@ class Library {
 
     for (const [key, archive] of entries) {
       if (key === url) return archive
-      const archiveURL = 'dat://' + DatEncoding.encode(archive.key)
+      const archiveURL = 'hyper://' + DatEncoding.encode(archive.key)
       if (archiveURL === url) return archive
     }
   }
@@ -81,7 +81,7 @@ class Library {
       return archive
     }
 
-    const resolved = 'dat://' + await this.resolveName(url)
+    const resolved = 'hyper://' + await this.resolveName(url)
     const key = DatEncoding.decode(resolved)
     const archive = this.Hyperdrive(key, {
       sparse: this.latest
@@ -148,9 +148,9 @@ class Library {
     let key = await fs.readFile(dotDatLocation, 'utf8')
 
     // Only try to resolve URLs
-    if (key.startsWith('dat://')) {
+    if (key.startsWith('hyper://')) {
       try {
-        const resolved = 'dat://' + await this.resolveName(key)
+        const resolved = 'hyper://' + await this.resolveName(key)
         key = DatEncoding.decode(resolved)
       } catch (e) {
         for (const known of DNS_ERRORS) {
