@@ -2,6 +2,9 @@ const path = require('path')
 const test = require('tape')
 const fs = require('fs-extra')
 const getPort = require('get-port')
+const SDK = require('dat-sdk')
+const RAM = require('random-access-memory')
+const delay = require('delay')
 
 const StoreServer = require('./server')
 const StoreClient = require('./client')
@@ -22,6 +25,10 @@ test('Talk to server with client', async (t) => {
     const client = new StoreClient({
       configLocation,
       localService
+    })
+
+    const sdk = await SDK({
+      storage: RAM
     })
 
     t.pass('Initialized client')
@@ -75,40 +82,10 @@ test('Talk to server with client', async (t) => {
 
     t.equals(persistedProviderURL, providerURL, 'Provider service persisted')
 
-    const DAT_PROJECT_KEY = 'dat://60c525b5589a5099aa3610a8ee550dcd454c3e118f7ac93b7d41b6b850272330'
-    const DAT_PROJECT_DOMAIN = 'dat://dat.foundation'
-
-    await client.add(DAT_PROJECT_DOMAIN)
-
-    t.pass('Added archive')
-
-    const { items } = await client.list()
-    const [{ url }] = items
-
-    t.equals(url, DAT_PROJECT_KEY, 'Archive got added to list')
-
-    await client.remove(DAT_PROJECT_DOMAIN)
-
-    t.pass('Removed archive')
-
-    const { items: finalItems } = await client.list()
-
-    t.deepEquals(finalItems, [], 'Key got removed')
-
     await fs.ensureDir(hyperdriveLocation)
-    const tmpArchive = server.library.Hyperdrive(hyperdriveLocation)
-
-    // Generate the metadata, then close
-    await new Promise((resolve) => tmpArchive.ready(resolve))
-
-    await new Promise((resolve, reject) => {
-      tmpArchive.writeFile('/example.txt', 'Hello World', (err) => {
-        if (err) reject(err)
-        else resolve()
-      })
+    await fs.writeJSON(path.join(hyperdriveLocation, 'dat.json'), {
+      title: 'example'
     })
-
-    await new Promise((resolve) => tmpArchive.close(resolve))
 
     await client.add(hyperdriveLocation)
 
@@ -117,9 +94,19 @@ test('Talk to server with client', async (t) => {
     const { items: localItems } = await client.list()
     const [{ url: localURL }] = localItems
 
-    const expectedKey = `dat://` + tmpArchive.key.toString('hex')
+    t.ok(localURL, 'Generated key for archive')
 
-    t.equals(localURL, expectedKey, 'Local archive got loaded')
+    const folderDrive = sdk.Hyperdrive(localURL)
+
+    await folderDrive.ready()
+
+    await delay(3000)
+
+    const datJSON = await folderDrive.readFile('/dat.json')
+
+    t.ok(datJSON, 'Loaded data from archive')
+
+    await folderDrive.close()
 
     await server.destroy()
 
@@ -136,7 +123,7 @@ test('Talk to server with client', async (t) => {
     const { items: localItems2 } = await client.list()
     const [{ url: localURL2 }] = localItems2
 
-    t.equals(localURL2, expectedKey, 'Local archive got loaded')
+    t.equals(localURL2, localURL, 'Local archive got loaded')
 
     const exampleFileName = 'example.txt'
     const exampleFileLocation = path.join(hyperdriveLocation, exampleFileName)
@@ -144,34 +131,29 @@ test('Talk to server with client', async (t) => {
 
     await fs.writeFile(exampleFileLocation, exampleFileData)
 
-    // Wait for the archive to detect the write
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    const updatedArchive = sdk.Hyperdrive(localURL)
+
+    await updatedArchive.ready()
+
+    // Wait for change to propogate
+    await delay(3000)
+
+    const gotExampleData = await updatedArchive.readFile(exampleFileName, 'utf8')
+
+    t.deepEqual(gotExampleData, exampleFileData, 'Got updated file from archive')
 
     await client.remove(hyperdriveLocation)
 
-    t.pass('Removed local archive')
+    const { items: localItems3 } = await client.list()
 
-    const tmpArchive2 = newServer.library.Hyperdrive(hyperdriveLocation)
-
-    // Generate the metadata, then close
-    await new Promise((resolve) => tmpArchive2.ready(resolve))
-
-    const readExampleFileData = await new Promise((resolve, reject) => {
-      tmpArchive2.readFile(exampleFileName, 'utf8', (err, data) => {
-        if (err) reject(err)
-        else resolve(data)
-      })
-    })
-
-    t.equals(readExampleFileData, exampleFileData, 'Data synced from folder')
-
-    await new Promise((resolve) => tmpArchive2.close(resolve))
+    t.equal(localItems3.length, 0, 'Removed local archive')
 
     await newServer.destroy()
 
     t.pass('Destroyed server')
 
     await fs.remove(tmpFolder)
+    await sdk.close()
 
     t.end()
   } catch (e) {

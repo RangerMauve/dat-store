@@ -53,11 +53,12 @@ const addServiceOptions = (yargs) => yargs
   })
 const addClientOptions = (yargs) => yargs
   .option('config-location')
-const noOptions = () => void 0
+const noOptions = () => null
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
   .command('add <url|path> [provider]', 'Add a Dat to your storage provider.', addServiceOptions, add)
+  .command('clone <path> <url> [provider]', 'Sync changes from a Dat into a local folder.', addServiceOptions, clone)
   .command('remove <url|path> [provider]', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
   .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
   .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addServiceOptions, setService)
@@ -86,10 +87,14 @@ async function add (args) {
   await getClient(args).add(args.url)
 }
 
+async function clone (args) {
+  await getService(args).clone(args.path, args.key)
+}
+
 async function list (args) {
   const { items } = await getClient(args).list()
 
-  for (let { url, name, title } of items) {
+  for (const { url, name, title } of items) {
     let line = url
     if (name || title) {
       line = `${url} - ${name || title}`
@@ -152,7 +157,7 @@ async function getProviders (args) {
 
   const providers = await client.getProviders()
 
-  for (let name of Object.keys(providers)) {
+  for (const name of Object.keys(providers)) {
     console.log(name, '-', providers[name])
   }
 }
