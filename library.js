@@ -26,12 +26,12 @@ module.exports =
 
 class Library {
   static async create (opts = {}) {
-    const { storageLocation, datPort } = opts
+    const { storageLocation, p2pPort } = opts
     const sdk = await SDK({
       storage: storageLocation,
       swarmOpts: {
         ephemeral: false,
-        port: datPort
+        preferredPort: p2pPort
       }
     })
 
@@ -219,7 +219,7 @@ class Library {
       await syncFolder()
 
       // Watch for changes in the hypertrie
-      const watcher = archive.db.watch('/', syncFolder)
+      const watcher = archive.watch('/', syncFolder)
 
       archive.destroyMirror = () => {
         watcher.destroy()

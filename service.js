@@ -19,7 +19,7 @@ const argv = yargs
     default: true,
     type: 'boolean'
   })
-  .option('dat-port', {
+  .option('p2p-port', {
     describe: 'The port to listen for P2P connections on',
     default: 3282
   })

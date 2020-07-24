@@ -31,7 +31,7 @@ class StoreServer {
     host,
     storageLocation,
     verbose = true,
-    datPort = 3282,
+    p2pPort = 3282,
     latest = false,
     allowCors = false,
     exposeToInternet = false,
@@ -42,7 +42,7 @@ class StoreServer {
     storageLocation = storageLocation || DEFAULT_STORAGE_LOCATION
 
     this.library = await Library.create({
-      storageLocation, datPort, latest
+      storageLocation, p2pPort, latest
     })
 
     this.dir = storageLocation
