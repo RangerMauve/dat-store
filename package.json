@@ -20,7 +20,7 @@
     "seed"
   ],
   "author": "rangermauve",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/datproject/dat-store/issues"
   },
@@ -31,14 +31,15 @@
     "anymatch": "^3.0.3",
     "conf": "^4.0.1",
     "dat-encoding": "^5.0.1",
-    "dat-sdk": "^2.5.0",
+    "dat-sdk": "^2.6.1",
     "dat-storage-client": "^1.0.0",
     "debug": "^4.1.1",
     "delay": "^4.3.0",
     "diff-file-tree": "^2.3.2",
     "env-paths": "^2.2.0",
-    "fastify": "^2.1.0",
+    "fastify": "^3.1.1",
     "fastify-cors": "^2.1.3",
+    "fastify-hyperdrive": "^1.0.0",
     "fastify-websocket": "^0.3.0",
     "fs-extra": "^7.0.1",
     "os-service": "^2.1.3",
@@ -48,6 +49,7 @@
     "yargs": "^13.2.2"
   },
   "devDependencies": {
+    "cross-fetch": "^3.0.5",
     "get-port": "^5.0.0",
     "random-access-memory": "^3.1.1",
     "tape": "^4.10.1",

@@ -1,4 +1,5 @@
 const createFastify = require('fastify')
+const fastifyHyperdrive = require('fastify-hyperdrive')
 const envPaths = require('env-paths')
 const tsse = require('tsse')
 const delay = require('delay')
@@ -197,6 +198,17 @@ class StoreServer {
 
       return {}
     })
+
+    this.fastify.get('/gateway/:key/*', fastifyHyperdrive(async (raw) => {
+      const key = Buffer.from(raw, 'hex')
+      const url = `hyper://${key.toString('hex')}`
+
+      const archive = await this.library.get(url)
+
+      if(!archive) throw new Error('Archive not tracked')
+
+      return archive
+    }))
   }
 
   async getMetadata (key) {
@@ -205,6 +217,7 @@ class StoreServer {
     let manifest = {
       title: key
     }
+
     try {
       manifest = await Promise.race([
         await archive.readFile('/index.json', 'utf8').then((raw) => JSON.parse(raw)),

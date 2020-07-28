@@ -183,7 +183,6 @@ class Library {
           const diff = await dft.diff(source, dest, {
             filter
           })
-
           await dft.applyRight(source, dest, diff)
         } catch (e) {
         // Whatever

@@ -5,6 +5,7 @@ const getPort = require('get-port')
 const SDK = require('dat-sdk')
 const RAM = require('random-access-memory')
 const delay = require('delay')
+const fetch = require('cross-fetch')
 
 const StoreServer = require('./server')
 const StoreClient = require('./client')
@@ -28,7 +29,7 @@ test('Talk to server with client', async (t) => {
     })
 
     const sdk = await SDK({
-      storage: RAM
+      persist: false
     })
 
     t.pass('Initialized client')
@@ -106,8 +107,6 @@ test('Talk to server with client', async (t) => {
 
     t.ok(datJSON, 'Loaded data from archive')
 
-    await folderDrive.close()
-
     await server.destroy()
 
     t.pass('Destroyed server')
@@ -131,16 +130,22 @@ test('Talk to server with client', async (t) => {
 
     await fs.writeFile(exampleFileLocation, exampleFileData)
 
-    const updatedArchive = sdk.Hyperdrive(localURL)
-
-    await updatedArchive.ready()
-
     // Wait for change to propogate
     await delay(3000)
 
-    const gotExampleData = await updatedArchive.readFile(exampleFileName, 'utf8')
+    const gotExampleData = await folderDrive.readFile(exampleFileName, 'utf8')
 
     t.deepEqual(gotExampleData, exampleFileData, 'Got updated file from archive')
+
+    const gatewayURL = `${localService}/gateway/${updatedArchive.key.toString('hex')}/${exampleFileName}`
+
+    const response = await fetch(gatewayURL)
+
+    t.pass('Able to request data for hyperdrive')
+
+    const fetchText = await response.text()
+
+    t.equal(fetchText, exampleFileData, 'Got data from gateway')
 
     await client.remove(hyperdriveLocation)
 

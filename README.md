@@ -36,6 +36,7 @@ dat-store add hyper://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaade
 - Binds to port `3282` for interacting with the P2P network. This can be configured with the `--p2p-port` CLI option.
 - The service uses the [Dat SDK](https://www.npmjs.com/package/dat-sdk) to manage archives
 - Can work with multiple providers at the same time
+- Listens on `/gateway/:key/path` to serve files from your achives.
 
 ## FAQ
 
@@ -76,6 +77,13 @@ By default `dat-store run-service` will only listen on local connections.
 If you want to expose your store to the internet, specify the `--expose-to-internet` flag. This will make it listen on all network interfaces.
 
 You should probably combine this with the authorization flags so that random people don't abuse your store.
+
+### Can I access the files in an archive over HTTP?
+
+Yes, you can send requests to the path `/gateway/:key/path/to/file`.
+(e.g. `http://localhost:42069/gateway/94f0...whatever/index.html`)
+Only archives that are being tracked by the store will be loadable.
+If you want a general purpose gateway, check out fastify-hyperdrive.
 
 #### NGINX Tips
 
