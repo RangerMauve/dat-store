@@ -205,7 +205,7 @@ class StoreServer {
 
       const archive = await this.library.get(url)
 
-      if(!archive) throw new Error('Archive not tracked')
+      if (!archive) throw new Error('Archive not tracked')
 
       return archive
     }))

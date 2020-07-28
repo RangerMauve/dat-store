@@ -93,6 +93,18 @@ class Library {
 
     await this.saveUrls()
 
+    // Start downloading
+    archive.download('/')
+
+    // TODO: Account for mounts
+    const watcher = archive.watch('/', () => {
+      archive.download('/')
+    })
+
+    archive.destroyMirror = () => {
+      watcher.destroy()
+    }
+
     return archive
   }
 

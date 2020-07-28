@@ -78,13 +78,6 @@ If you want to expose your store to the internet, specify the `--expose-to-inter
 
 You should probably combine this with the authorization flags so that random people don't abuse your store.
 
-### Can I access the files in an archive over HTTP?
-
-Yes, you can send requests to the path `/gateway/:key/path/to/file`.
-(e.g. `http://localhost:42069/gateway/94f0...whatever/index.html`)
-Only archives that are being tracked by the store will be loadable.
-If you want a general purpose gateway, check out fastify-hyperdrive.
-
 #### NGINX Tips
 
 You should also consider putting your store behind NGINX with a letsecrypt certificate so that "Man In the Middle" attacks can't steal your login credentials or dat URLs.
@@ -114,7 +107,42 @@ server {
     # ... Certbot managed cerificate stuff down here ...#
 }
 ```
+
 The fastify server will take care of the rest of your serving needs for the store.
+
+#### Can I access the files in an archive over HTTP?
+
+Yes, you can send requests to the path `/gateway/:key/path/to/file`.
+(e.g. `http://localhost:42069/gateway/94f0...whatever/index.html`)
+Only archives that are being tracked by the store will be loadable.
+If you want a general purpose gateway, check out fastify-hyperdrive.
+
+You can use NGINX again to serve the contents of an archive as a top level website with something like the following:
+
+```shell
+server {
+  server_name blog.my-pinning-server.com;
+
+  location / {
+    proxy_pass http://localhost:3472/gateway/94f0cab7f60fcc2a711df11c85db5e0594d11e8a3efd04a06f46a3c34d03c418/;
+    proxy_set_header    Host            $host;
+    proxy_set_header    X-Real-IP       $remote_addr;
+    proxy_set_header    X-Forwarded-for $remote_addr;
+    port_in_redirect    off;
+    proxy_http_version  1.1;
+    proxy_set_header    Upgrade         $http_upgrade;
+    proxy_set_header    Connection      "Upgrade";
+  }
+
+    listen 80;
+    listen [::]:80;
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    
+    # ... Certbot managed cerificate stuff down here ...#
+}
+```
 
 ### How do I make it run in the background?
 

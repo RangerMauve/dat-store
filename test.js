@@ -3,7 +3,6 @@ const test = require('tape')
 const fs = require('fs-extra')
 const getPort = require('get-port')
 const SDK = require('dat-sdk')
-const RAM = require('random-access-memory')
 const delay = require('delay')
 const fetch = require('cross-fetch')
 
@@ -137,7 +136,7 @@ test('Talk to server with client', async (t) => {
 
     t.deepEqual(gotExampleData, exampleFileData, 'Got updated file from archive')
 
-    const gatewayURL = `${localService}/gateway/${updatedArchive.key.toString('hex')}/${exampleFileName}`
+    const gatewayURL = `${localService}/gateway/${folderDrive.key.toString('hex')}/${exampleFileName}`
 
     const response = await fetch(gatewayURL)
 
