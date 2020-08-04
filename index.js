@@ -87,7 +87,7 @@ async function add (args) {
 }
 
 async function clone (args) {
-  await getService(args).clone(args.path, args.key)
+  await getClient(args).clone(args.path, args.key)
 }
 
 async function list (args) {

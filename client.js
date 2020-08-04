@@ -186,7 +186,7 @@ class StoreClient {
   }
 
   async clone (path, key) {
-    if (key.startsWith('hyper://')) throw new Error(ERROR_NOT_DAT(key))
+    if (!key.startsWith('hyper://')) throw new Error(ERROR_NOT_DAT(key))
 
     await this.ensureInit()
 
@@ -196,8 +196,8 @@ class StoreClient {
     const cwd = process.cwd()
     const fullPath = path.resolve(cwd, path)
 
-    // If the service is local, we can't clone with it
-    if (service === this.localService) {
+    // If the service is not local, we can't clone with it
+    if (service !== this.localService) {
       throw new Error(ERROR_NOT_LOCAL(service, this.localService))
     }
 
