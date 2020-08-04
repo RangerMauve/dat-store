@@ -185,7 +185,7 @@ class StoreClient {
     return this.client.add({ url })
   }
 
-  async clone (path, key) {
+  async clone (clonePath, key) {
     if (!key.startsWith('hyper://')) throw new Error(ERROR_NOT_DAT(key))
 
     await this.ensureInit()
@@ -194,7 +194,7 @@ class StoreClient {
 
     // Probably a folder path
     const cwd = process.cwd()
-    const fullPath = path.resolve(cwd, path)
+    const fullPath = path.resolve(cwd, clonePath)
 
     // If the service is not local, we can't clone with it
     if (service !== this.localService) {
@@ -203,9 +203,10 @@ class StoreClient {
 
     const keyLocation = path.resolve(fullPath, './.dat')
 
+    await fs.ensureDir(fullPath)
     await fs.writeFile(keyLocation, key)
 
-    return this.add(path)
+    return this.add(clonePath)
   }
 
   async list () {
