@@ -76,7 +76,7 @@ By default `dat-store run-service` will only listen on local connections.
 
 If you want to remotely control your service from the Internet, specify the `--expose-to-internet` flag. This will make the API for adding and removing stores listen on all network interfaces.
 
-This flag is not needed to share/download archives over the internet, and is only intended for advanced users. You should probably combine this with the authorization flags so that random people don't abuse your store.
+This flag is not needed to share or download archives over the Internet, and is only intended for advanced users. You should probably combine this with the authorization flags so that random people don't abuse your store.
 
 #### NGINX Tips
 
