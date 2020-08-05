@@ -70,13 +70,13 @@ These two modes of operation can be combined together. When you create a dat, ad
 
 You can require authentication for your dat-store by specifying the `--authorization-username` and `--authorization-password` flags when you run the service.
 
-### How do I expose my store to the internet?
+### How do I remotely control my store from the Internet?
 
 By default `dat-store run-service` will only listen on local connections.
 
-If you want to expose your store to the internet, specify the `--expose-to-internet` flag. This will make it listen on all network interfaces.
+If you want to remotely control your service from the Internet, specify the `--expose-to-internet` flag. This will make the API for adding and removing stores listen on all network interfaces.
 
-You should probably combine this with the authorization flags so that random people don't abuse your store.
+This flag is not needed to share or download archives over the Internet, and is only intended for advanced users. You should probably combine this with the authorization flags so that random people don't abuse your store.
 
 #### NGINX Tips
 
