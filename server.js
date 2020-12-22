@@ -47,7 +47,7 @@ class StoreServer {
     })
 
     this.dir = storageLocation
-
+    
     this.authenticationUsername = authenticationUsername
     this.authenticationPassword = authenticationPassword
     this.manifestTimeout = manifestTimeout
@@ -200,7 +200,8 @@ class StoreServer {
     })
 
     this.fastify.get('/gateway/:key/*', fastifyHyperdrive(async (raw) => {
-      const key = Buffer.from(raw, 'hex')
+      const resolved = await this.library.resolve(raw)
+      const key = Buffer.from(resolved, 'hex')
       const url = `hyper://${key.toString('hex')}`
 
       const archive = await this.library.get(url)
