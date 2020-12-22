@@ -64,6 +64,10 @@ class Library {
     return [...this.urls.values(), ...this.folders.values()]
   }
 
+  async resolve (url) {
+    return await this.resolveName(url)
+  }
+
   async get (url) {
     const entries = [...this.urls.entries(), ...this.folders.entries()]
 

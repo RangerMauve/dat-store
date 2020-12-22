@@ -48,17 +48,6 @@ class StoreServer {
 
     this.dir = storageLocation
     
-    const SDK = require('dat-sdk')
-    const sdk = await SDK({
-      storage: storageLocation,
-      swarmOpts: {
-        ephemeral: false,
-        preferredPort: p2pPort
-      }
-    })
-    const {resolveName} = sdk
-    this.resolveName = resolveName
-
     this.authenticationUsername = authenticationUsername
     this.authenticationPassword = authenticationPassword
     this.manifestTimeout = manifestTimeout
@@ -211,7 +200,7 @@ class StoreServer {
     })
 
     this.fastify.get('/gateway/:key/*', fastifyHyperdrive(async (raw) => {
-      const resolved = await this.resolveName(raw)
+      const resolved = await this.library.resolve(raw)
       const key = Buffer.from(resolved, 'hex')
       const url = `hyper://${key.toString('hex')}`
 
