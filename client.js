@@ -6,10 +6,7 @@ const DatStorageClient = require('dat-storage-client')
 
 const debug = require('debug')('dat-store:client')
 
-// URL for storage provider running on localhost
-const LOCAL_SERVICE = 'http://localhost:3472'
-
-const ERROR_NOT_LOCAL = (service, localService) => `Provider ${service} must be running on ${this.localService} to clone`
+const ERROR_NOT_LOCAL = (service, localService) => `Provider ${service} must be running on ${localService} to clone`
 const ERROR_NO_PROVIDER = (provider) => `Provider URL not set for ${provider}`
 const ERROR_NOT_DAT_DIRECTORY = (path) => `No Dat information found in ${path}`
 const ERROR_NOT_DAT = (key) => `Key must be a hyper:// URL, instead it's ${key}`
@@ -28,7 +25,7 @@ class StoreClient {
       options.cwd = configLocation
     }
 
-    this.localService = localService || LOCAL_SERVICE
+    this.localService = localService
 
     this.config = new Conf(options)
   }
