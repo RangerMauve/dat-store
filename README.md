@@ -215,14 +215,8 @@ Commands:
   dat-store logout                          Logs you out of your storage
                                             provider.
   dat-store run-service                     Runs a local storage provider.
-  dat-store migrate                         Migrates old dat-store data to new
-                                            format
 
 Options:
   --version  Show version number                                       [boolean]
   --help     Show help                                                 [boolean]
 ```
-
-## Migrating from 3.0.0 to 4.0.0
-
-If you were already using dat-store@3.0.0 or lower (for storing data), run `dat-store migrate` to have it transfer your data over. After that you should be able to use `dat-store list` to check that all your archives got migrated. If you have an problems, please open an issue with any stack traces you might have.
