@@ -2,7 +2,7 @@ const path = require('path')
 const test = require('tape')
 const fs = require('fs-extra')
 const getPort = require('get-port')
-const SDK = require('dat-sdk')
+const SDK = require('hyper-sdk')
 const delay = require('delay')
 const fetch = require('cross-fetch')
 

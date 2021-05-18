@@ -7,7 +7,7 @@ const anymatch = require('anymatch')
 const dft = require('diff-file-tree')
 const slugify = require('@sindresorhus/slugify')
 
-const SDK = require('dat-sdk')
+const SDK = require('hyper-sdk')
 
 const ERROR_NOT_FOUND_URL = (url) => `URL Not Found ${url}`
 const ERROR_NOT_FOUND_FOLDER = (path) => `Folder Not Found ${path}`
