@@ -1,6 +1,7 @@
 const yargs = require('yargs')
 
 const SERVICE_NAME = 'dat-store'
+const DEFAULT_LOCAL_SERVICE = 'http://localhost:3472'
 
 const addServiceOptions = (yargs) => yargs
   .option('storage-location', {
@@ -51,23 +52,61 @@ const addServiceOptions = (yargs) => yargs
     describe: 'time out if the PDA cannot be read with timeout milliseconds',
     default: 500
   })
-const addClientOptions = (yargs) => yargs
-  .option('config-location')
+const addProviderOptions = (yargs) => yargs
+  .positional('provider', {
+    describe: 'operate on one of multiple, configured providers with this name',
+    type: 'string'
+  })
+const addClientOptions = (yargs) => addProviderOptions(yargs)
+  .option('config-location', {
+    describe: 'location to store the configuration at, defaults to config directory, see: https://github.com/sindresorhus/env-paths#pathsconfig',
+    type: 'string'
+  })
+  .option('local-service', {
+    describe: 'fallback service url for the provider',
+    default: DEFAULT_LOCAL_SERVICE,
+    type: 'string'
+  })
+const addClientURLOptions = (yargs) => addClientOptions(yargs)
+  .positional('url', {
+    describe: 'http URL for the service',
+    type: 'string'
+  })
+const addClientUserOptions = (yargs) => addClientOptions(yargs)
+  .positional('username', {
+    describe: 'username specified by the remote dat-store',
+    type: 'string'
+  })
+  .positional('password', {
+    describe: 'password for the login, will be prompted-for if missing',
+    type: 'string'
+  })
+const addClientURLXOptions = (yargs) => addClientOptions(yargs)
+  .positional('url|path', {
+    describe: 'Dat URL or folder to find the hyper-drive at'
+  })
+const addClientURLPathOptions = (yargs) => addClientOptions(yargs)
+  .positional('path', {
+    describe: 'folder to replicate the Dat to'
+  })
+  .positional('url', {
+    describe: 'Dat URL to replicate'
+  })
 const noOptions = () => null
 
 const commands = yargs
   .scriptName(SERVICE_NAME)
-  .command('add <url|path> [provider]', 'Add a Dat to your storage provider.', addServiceOptions, add)
-  .command('clone <path> <url> [provider]', 'Sync changes from a Dat into a local folder.', addServiceOptions, clone)
-  .command('remove <url|path> [provider]', 'Remove a Dat from your storage provider.', addServiceOptions, remove)
-  .command('list [provider]', 'List the Dats in your storage provider.', addServiceOptions, list)
-  .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addServiceOptions, setService)
-  .command('get-provider [provider]', 'Get the URL of your storage provider.', addServiceOptions, getService)
+  .command('add <url|path> [provider]', 'Add a Dat to your storage provider.', addClientURLXOptions, add)
+  .command('clone <path> <url> [provider]', 'Sync changes from a Dat into a local folder.', addClientURLPathOptions, clone)
+  .command('remove <url|path> [provider]', 'Remove a Dat from your storage provider.', addClientURLXOptions, remove)
+  .command('list [provider]', 'List the Dats in your storage provider.', addClientOptions, list)
+  .command('set-provider <url> [provider]', 'Set the URL of your storage provider.', addClientURLOptions, setService)
+  .command('get-provider [provider]', 'Get the URL of your storage provider.', addClientOptions, getService)
   .command('list-providers', 'Get the list of providers and their names', noOptions, getProviders)
-  .command('unset-provider [provider]', 'Reset your storage provider to the default: http://localhost:3472', addServiceOptions, unsetService)
-  .command('login <username> [provider] [password]', 'Logs you into your storage provider.', addServiceOptions, login)
-  .command('logout', 'Logs you out of your storage provider.', addServiceOptions, logout)
-  .command('run-service', 'Runs a local storage provider.', addClientOptions, runService)
+  .command('unset-provider [provider]', `Reset your storage provider to the default: ${DEFAULT_LOCAL_SERVICE}`, addProviderOptions, unsetService)
+  .command('login <username> [provider] [password]', 'Logs you into your storage provider.', addClientUserOptions, login)
+  .command('logout [provider]', 'Logs you out of your storage provider.', addClientOptions, logout)
+  .command('run-service', 'Runs a local storage provider.', addServiceOptions, runService)
   .help()
 
 module.exports = (argv) => {
@@ -139,8 +178,9 @@ async function logout (args) {
   await getClient(args).logout()
 }
 
-function runService () {
-  require('./service.js')
+function runService (args) {
+  const run = require('./service.js')
+  run(args)
 }
 
 async function getProviders (args) {
