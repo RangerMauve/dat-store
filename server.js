@@ -47,7 +47,7 @@ class StoreServer {
     })
 
     this.dir = storageLocation
-    
+
     this.authenticationUsername = authenticationUsername
     this.authenticationPassword = authenticationPassword
     this.manifestTimeout = manifestTimeout

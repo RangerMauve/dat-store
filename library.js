@@ -88,7 +88,8 @@ class Library {
     const resolved = 'hyper://' + await this.resolveName(url)
     const key = DatEncoding.decode(resolved)
     const archive = this.Hyperdrive(key, {
-      sparse: this.latest
+      sparse: this.latest,
+      sparseMetadata: this.latest
     })
 
     this.urls.set(url, archive)
@@ -147,7 +148,8 @@ class Library {
     }
 
     const opts = {
-      sparse: this.latest
+      sparse: this.latest,
+      sparseMetadata: this.latest
     }
 
     const dotDatLocation = path.join(folder, '.dat')
