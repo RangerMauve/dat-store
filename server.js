@@ -199,7 +199,7 @@ class StoreServer {
       return {}
     })
 
-    this.fastify.get('/gateway/:key/*', fastifyHyperdrive(async (raw) => {
+    const handleGateway = fastifyHyperdrive(async (raw) => {
       const resolved = await this.library.resolve(raw)
       const key = Buffer.from(resolved, 'hex')
       const url = `hyper://${key.toString('hex')}`
@@ -209,7 +209,10 @@ class StoreServer {
       if (!archive) throw new Error('Archive not tracked')
 
       return archive
-    }))
+    })
+
+    this.fastify.get('/gateway/:key/*', handleGateway)
+    this.fastify.head('/gateway/:key/*', handleGateway)
   }
 
   async getMetadata (key) {
