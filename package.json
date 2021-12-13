@@ -4,7 +4,11 @@
   "description": "An extension for the Dat CLI to support s",
   "main": "index.js",
   "scripts": {
-    "test": "node test"
+    "test": "node test",
+    "build": "npm run build-linux && npm run build-windows && npm run build-mac",
+    "build-linux": "node build.js --target linux",
+    "build-mac": "node build.js --target darwin",
+    "build-windows": "node build.js --target win32"
   },
   "bin": {
     "dat-store": "bin.js"
@@ -12,6 +16,36 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/datproject/dat-store.git"
+  },
+  "pkg-linux": {
+    "targets": [
+      "node14-linux-x64"
+    ],
+    "assets": [
+      "./node_modules/sodium-native/prebuilds/linux-x64/*",
+      "./node_modules/utp-native/prebuilds/linux-x64/*",
+      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+    ]
+  },
+  "pkg-darwin": {
+    "targets": [
+      "node14-macos-x64"
+    ],
+    "assets": [
+      "./node_modules/sodium-native/prebuilds/darwin-x64/*",
+      "./node_modules/utp-native/prebuilds/darwin-x64/*",
+      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+    ]
+  },
+  "pkg-win32": {
+    "targets": [
+      "node14-win-x64"
+    ],
+    "assets": [
+      "./node_modules/sodium-native/prebuilds/win32-x64/*",
+      "./node_modules/utp-native/prebuilds/win32-x64/*",
+      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+    ]
   },
   "keywords": [
     "dat",
@@ -53,6 +87,7 @@
   "devDependencies": {
     "cross-fetch": "^3.0.5",
     "get-port": "^5.0.0",
+    "pkg": "^5.5.1",
     "random-access-memory": "^3.1.1",
     "tape": "^4.10.1",
     "tmp": "^0.1.0"

@@ -61,3 +61,6 @@ typings/
 .next
 
 package-lock.json
+
+# pkg output
+dist

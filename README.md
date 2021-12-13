@@ -4,10 +4,15 @@ dat-store aims to solve the question of "How do I make sure my Dat is being shar
 
 It can be used as a CLI to watch for changes in a folder, or to keep a Dat online based on its URL.
 
+You can [download](https://github.com/datproject/dat-store/releases) an executible without needing to set up Node.js from the latest release.
+
 **Note: dat-store uses features from node 10.10.0 so please make sure your version is higher than that.**
 
 ```shell
 npm install -g dat-store
+
+# Alternately you can download the latest release for your platform:
+# https://github.com/datproject/dat-store/releases
 
 # Run a store on http://localhost:3282
 dat-store run-service

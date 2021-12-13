@@ -1,0 +1,42 @@
+name: Publish
+
+on:
+  push:
+    ## Run on tags starting with `v*`
+    tags:
+      - 'v*'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            to_run: npm run build-linux
+          - os: windows-latest
+            to_run: npm run build-windows
+          - os: macos-latest
+            to_run: npm run build-mac
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+    - name: Install dependencies
+      run: npm install
+    - name: Build
+      run: ${{ matrix.to_run }}
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: dist/**
+        file_glob: true
+        tag: ${{ github.ref }}
