@@ -108,9 +108,14 @@ const commands = yargs
   .command('logout [provider]', 'Logs you out of your storage provider.', addClientOptions, logout)
   .command('run-service', 'Runs a local storage provider.', addServiceOptions, runService)
   .help()
+  .showHelpOnFail(true)
 
 module.exports = (argv) => {
-  commands.parse(argv)
+  const parsed = commands.parse(argv)
+
+  if (!parsed._.length){
+    commands.showHelp()
+  }
 }
 
 function getClient (args) {
