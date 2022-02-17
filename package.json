@@ -11,7 +11,7 @@
     "build-windows": "node build.js --target win32"
   },
   "bin": {
-    "dat-store": "bin.js"
+    "dat-store": "src/bin.js"
   },
   "repository": {
     "type": "git",
@@ -94,11 +94,11 @@
   },
   "pkg": {
     "targets": [
-      "node14-win-x64"
+      "node14-linux-x64"
     ],
     "assets": [
-      "./node_modules/sodium-native/prebuilds/win32-x64/*",
-      "./node_modules/utp-native/prebuilds/win32-x64/*",
+      "./node_modules/sodium-native/prebuilds/linux-x64/*",
+      "./node_modules/utp-native/prebuilds/linux-x64/*",
       "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
     ]
   }
