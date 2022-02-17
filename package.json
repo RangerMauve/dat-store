@@ -91,5 +91,15 @@
     "random-access-memory": "^3.1.1",
     "tape": "^4.10.1",
     "tmp": "^0.1.0"
+  },
+  "pkg": {
+    "targets": [
+      "node14-win-x64"
+    ],
+    "assets": [
+      "./node_modules/sodium-native/prebuilds/win32-x64/*",
+      "./node_modules/utp-native/prebuilds/win32-x64/*",
+      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+    ]
   }
 }
