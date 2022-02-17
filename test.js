@@ -6,8 +6,8 @@ const SDK = require('hyper-sdk')
 const delay = require('delay')
 const fetch = require('cross-fetch')
 
-const StoreServer = require('./server')
-const StoreClient = require('./client')
+const StoreServer = require('./src/server')
+const StoreClient = require('./src/client')
 
 test('Talk to server with client', async (t) => {
   try {
