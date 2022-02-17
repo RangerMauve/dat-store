@@ -24,7 +24,10 @@
     "assets": [
       "./node_modules/sodium-native/prebuilds/linux-x64/*",
       "./node_modules/utp-native/prebuilds/linux-x64/*",
-      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+      "./node_modules/fsctl/prebuilds/linux-x64/*",
+      "./node_modules/fd-lock/prebuilds/linux-x64/*",
+      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+      "./node_modules/os-service/build/Release/service.node"
     ]
   },
   "pkg-darwin": {
@@ -34,7 +37,10 @@
     "assets": [
       "./node_modules/sodium-native/prebuilds/darwin-x64/*",
       "./node_modules/utp-native/prebuilds/darwin-x64/*",
-      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+      "./node_modules/fsctl/prebuilds/darwin-x64/*",
+      "./node_modules/fd-lock/prebuilds/darwin-x64/*",
+      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+      "./node_modules/os-service/build/Release/service.node"
     ]
   },
   "pkg-win32": {
@@ -44,7 +50,10 @@
     "assets": [
       "./node_modules/sodium-native/prebuilds/win32-x64/*",
       "./node_modules/utp-native/prebuilds/win32-x64/*",
-      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+      "./node_modules/fsctl/prebuilds/win32-x64/*",
+      "./node_modules/fd-lock/prebuilds/win32-x64/*",
+      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+      "./node_modules/os-service/build/Release/service.node"
     ]
   },
   "keywords": [
@@ -91,15 +100,5 @@
     "random-access-memory": "^3.1.1",
     "tape": "^4.10.1",
     "tmp": "^0.1.0"
-  },
-  "pkg": {
-    "targets": [
-      "node14-linux-x64"
-    ],
-    "assets": [
-      "./node_modules/sodium-native/prebuilds/linux-x64/*",
-      "./node_modules/utp-native/prebuilds/linux-x64/*",
-      "./node_modules/better-sqlite3/build/Release/better_sqlite3.node"
-    ]
   }
 }
